@@ -1,0 +1,35 @@
+{
+  "000000000000/drft-uploads/general/b3849091-d91c-46eb-ad87-1d660e2f5d32.png" : {
+    "bucketName" : "drft-uploads",
+    "key" : "general/b3849091-d91c-46eb-ad87-1d660e2f5d32.png",
+    "metadata" : { },
+    "contentType" : "application/octet-stream",
+    "contentEncoding" : null,
+    "contentDisposition" : null,
+    "cacheControl" : null,
+    "serverSideEncryption" : null,
+    "sseCustomerAlgorithm" : null,
+    "sseCustomerKeyMd5" : null,
+    "size" : 68,
+    "lastModified" : "2026-06-05T04:22:51.648Z",
+    "storageClass" : "STANDARD",
+    "checksum" : {
+      "checksumCRC32" : "WtmnmA==",
+      "checksumCRC32C" : null,
+      "checksumCRC64NVME" : null,
+      "checksumSHA1" : null,
+      "checksumSHA256" : null,
+      "checksumType" : "FULL_OBJECT"
+    },
+    "parts" : [ ],
+    "versionId" : null,
+    "deleteMarker" : false,
+    "tags" : { },
+    "objectLockMode" : null,
+    "retainUntilDate" : null,
+    "legalHoldStatus" : null,
+    "acl" : null,
+    "latest" : true,
+    "etag" : "\"ad5e2b4eafdb5b5048a4096ed7fc9701\""
+  }
+}

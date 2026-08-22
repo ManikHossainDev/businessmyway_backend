@@ -1,0 +1,23 @@
+{
+  "000000000000/drft-uploads" : {
+    "name" : "drft-uploads",
+    "creationDate" : "2026-06-05T04:18:32.921249579Z",
+    "versioningStatus" : null,
+    "tags" : { },
+    "notificationConfiguration" : null,
+    "objectLockEnabled" : false,
+    "defaultRetention" : null,
+    "policy" : null,
+    "corsConfiguration" : null,
+    "lifecycleConfiguration" : null,
+    "transitionDefaultMinimumObjectSize" : null,
+    "acl" : null,
+    "encryptionConfiguration" : null,
+    "publicAccessBlockConfiguration" : null,
+    "ownershipControlsConfiguration" : null,
+    "requestPaymentPayer" : null,
+    "region" : "us-east-1",
+    "websiteConfiguration" : null,
+    "versioningEnabled" : false
+  }
+}

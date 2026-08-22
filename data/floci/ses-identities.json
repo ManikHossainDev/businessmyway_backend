@@ -1,0 +1,18 @@
+{
+  "000000000000/identity::us-east-1::noreply@drft.app" : {
+    "Identity" : "noreply@drft.app",
+    "IdentityType" : "EmailAddress",
+    "VerificationStatus" : "Success",
+    "VerificationToken" : "867ac51a-8be8-4475-b48c-c85ad796a008",
+    "DkimEnabled" : false,
+    "DkimVerificationStatus" : "NotStarted",
+    "NotificationAttributes" : { },
+    "FeedbackForwardingEnabled" : true,
+    "MailFromDomain" : null,
+    "BehaviorOnMxFailure" : "UseDefaultValue",
+    "MailFromDomainStatus" : "Pending",
+    "HeadersInNotificationsEnabled" : { },
+    "CreatedAt" : "2026-06-05T04:18:32.937095093Z",
+    "Tags" : [ ]
+  }
+}

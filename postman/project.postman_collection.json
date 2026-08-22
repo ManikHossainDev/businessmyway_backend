@@ -1,0 +1,1342 @@
+{
+    "info": {
+        "_postman_id": "1c7b9456-a904-4a02-988b-8eab51987a03",
+        "name": "XMH API",
+        "description": "DRFT Backend API — Claims & Insurance Management System.\n\n## Variables\n- `base_url`: `http://localhost:5000/api/v1`\n- `accessToken`: Set via Login/Refresh requests using Test script.\n\n## Multipart Endpoints\nFor endpoints that accept file uploads (`POST /claims`, `POST /auth/complete-profile`, `PATCH /users/me`, `POST /upload`):\n- Send all text fields inside a `data` key as a JSON string\n- Send files under their respective field names\n\nThe server parses the `data` JSON and merges it with uploaded file URLs.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "38310640",
+        "_collection_link": "https://go.postman.co/collection/38310640-1c7b9456-a904-4a02-988b-8eab51987a03?source=collection_link"
+    },
+    "item": [
+        {
+            "name": "App",
+            "item": [
+                {
+                    "name": "Auth",
+                    "item": [
+                        {
+                            "name": "Register",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"John Wick Monster\",\n    \"email\": \"johnwickmonsteryo@example.com\",\n    \"password\": \"1qazxsw2J%\",\n    \"confirmPassword\": \"1qazxsw2J%\",\n    \"agreeTermsAndConditions\": true\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/register",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "register"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Login",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "// Parse the JSON response",
+                                            "const response = pm.response.json();",
+                                            "",
+                                            "// Check if the response indicates a successful login and contains data",
+                                            "if (response && response.success && response.data) {",
+                                            "    const role = response.data.user?.role;",
+                                            "    const accessToken = response.data.tokens?.accessToken;",
+                                            "",
+                                            "    if (role && accessToken) {",
+                                            "        // 1. Save the token under a role-specific variable (e.g., \"user_token\")",
+                                            "        pm.collectionVariables.set(`${role}`, accessToken);",
+                                            "        ",
+                                            "        // 2. Save the token under a general variable for the immediate next request",
+                                            "        pm.collectionVariables.set(\"accessToken\", accessToken);",
+                                            "",
+                                            "        console.log(`Variables set successfully! Role: ${role}`);",
+                                            "    } else {",
+                                            "        console.warn(\"Script skipped: 'role' or 'accessToken' was missing in the data object.\");",
+                                            "    }",
+                                            "} else {",
+                                            "    console.error(\"Script skipped: Response success is false or data is missing.\");",
+                                            "}"
+                                        ],
+                                        "type": "text/javascript",
+                                        "packages": {},
+                                        "requests": {}
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    // \"email\": \"superadmin@example.com\", // Admin\n    // \"email\": \"john@example.com\", // User\n    // \"email\": \"mecocek687@lidugw.com\", // User\n    // \"password\": \"Qwertyui@007\"\n    // \"email\": \"johnwick@example.com\", // User\n    \"email\": \"johnwickmonsteryo@example.com\", // User\n    \"password\": \"1qazxsw2J%\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/login",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "login"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Login (Social)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"provider\": \"google\",\n  \"token\": \"<google_id_token>\",\n  \"deviceType\": \"ios\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/login",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "login"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Refresh Token",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "const json = pm.response.json();",
+                                            "if (json.data?.tokens?.accessToken) {",
+                                            "  pm.collectionVariables.set('accessToken', json.data.tokens.accessToken);",
+                                            "}"
+                                        ],
+                                        "type": "text/javascript",
+                                        "packages": {},
+                                        "requests": {}
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTNhMjdjMDlmOTA0YjY0YmFiNTYyOTMiLCJlbWFpbCI6Im1lY29jZWs2ODdAbGlkdWd3LmNvbSIsIm5hbWUiOiJNZWNvY2VrIExpZHVndyIsInJvbGUiOiJ1c2VyIiwic3RhdHVzIjoiYWN0aXZlIiwiaXNEZWxldGVkIjpmYWxzZSwicmVnaXN0cmF0aW9uU3RyYXRlZ3kiOiJsb2NhbCIsImlzRW1haWxWZXJpZmllZCI6dHJ1ZSwib25ib2FyZGluZ1N0ZXAiOiJBUFBST1ZFRCIsImlzT25ib2FyZGluZ0NvbXBsZXRlZCI6dHJ1ZSwidHlwZSI6InJlZnJlc2giLCJqdGkiOiJmYjFkNTk5MC03YTA3LTQxZDEtYjkxNC1kMzM0ZDBjZTQ5YTUiLCJpYXQiOjE3ODIyOTQ0NjcsImV4cCI6MTc4NDg4NjQ2N30.sfA-Y6jJPDFILX2j8MPj16nWjLbT1Asbf5hXRA8vYbQ\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/refresh-token",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "refresh-token"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Logout",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"accessToken\": \"Token\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/logout",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "logout"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Get Me",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{accessToken}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/auth/me",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "me"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Verify Email",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "// Parse the JSON response\r",
+                                            "const response = pm.response.json();\r",
+                                            "\r",
+                                            "// Check if the response indicates a successful login and contains data\r",
+                                            "if (response && response.success && response.data) {\r",
+                                            "    const tokenType = \"onboardingToken\";\r",
+                                            "    const token = response.data?.onboardingToken;\r",
+                                            "\r",
+                                            "    if (tokenType && token) {\r",
+                                            "        pm.collectionVariables.set(`${tokenType}`, token);\r",
+                                            "\r",
+                                            "        console.log(`Variables set successfully! Onboarding: ${token}`);\r",
+                                            "    } else {\r",
+                                            "        console.warn(\"Script skipped: 'onboardingToken' or 'token' was missing in the data object.\");\r",
+                                            "    }\r",
+                                            "} else {\r",
+                                            "    console.error(\"Script skipped: Response success is false or data is missing.\");\r",
+                                            "}"
+                                        ],
+                                        "type": "text/javascript",
+                                        "packages": {},
+                                        "requests": {}
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTRjOWI5N2Q3NWVjNDJkYWY3ODhhM2IiLCJlbWFpbCI6ImpvaG53aWNrbW9uc3RlcnlvQGV4YW1wbGUuY29tIiwidHlwZSI6InZlcmlmaWNhdGlvbiIsImp0aSI6ImY3OTE3N2MwLTk3OWMtNDQ0ZC1iNzQ0LTM3OGIzZGFhMmU4YyIsImlhdCI6MTc4MzQwNTQ2NywiZXhwIjoxNzgzNDA2MzY3fQ.1BBfJEnJfEDdvvTAp5kIAx5g_6kKTuxTljtlQA8kxg4",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"email\": \"johnwickmonsteryo@example.com\",\n  \"otp\": \"24098\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/verify-email",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "verify-email"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Forgot Password OTP Sending",
+                            "request": {
+                                "auth": {
+                                    "type": "noauth"
+                                },
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"email\": \"johnwickmonsterYo@example.com\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/forgot-password",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "forgot-password"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Resend Forgot Password OTP",
+                            "request": {
+                                "auth": {
+                                    "type": "noauth"
+                                },
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"email\": \"johnwickmonsterYo@example.com\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/forgot-password",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "forgot-password"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Verify Reset Password Code",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "// Parse the JSON response\r",
+                                            "const response = pm.response.json();\r",
+                                            "\r",
+                                            "// Check if the response indicates a successful login and contains data\r",
+                                            "if (response && response.success && response.data) {\r",
+                                            "    const index = \"passwordResetToken\";\r",
+                                            "    const token = response.data.tokens?.accessToken;\r",
+                                            "\r",
+                                            "    if (index && token) {\r",
+                                            "        pm.collectionVariables.set(`${index}`, token);\r",
+                                            "\r",
+                                            "        console.log(`Variables set successfully! Token Name: ${index}`);\r",
+                                            "    } else {\r",
+                                            "        console.warn(\"Script skipped: 'role' or 'accessToken' was missing in the data object.\");\r",
+                                            "    }\r",
+                                            "} else {\r",
+                                            "    console.error(\"Script skipped: Response success is false or data is missing.\");\r",
+                                            "}"
+                                        ],
+                                        "type": "text/javascript",
+                                        "packages": {},
+                                        "requests": {}
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "auth": {
+                                    "type": "noauth"
+                                },
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"johnwickmonsterYo@example.com\",\n    \"otp\": \"24121\",\n    \"forgotPassToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTRjOTI0MWIxZDUwMzVkMjM2OTllMmEiLCJlbWFpbCI6ImpvaG53aWNrbW9uc3RlcnlvQGV4YW1wbGUuY29tIiwidHlwZSI6ImZvcmdvdFBhc3MiLCJqdGkiOiJjOGUxN2M0Mi05ZTQ3LTQ0MDYtODQ4Yy03N2UxNDBiYTM3NDMiLCJpYXQiOjE3ODM0MDQyNzUsImV4cCI6MTc4MzQwNTE3NX0.1t502zf9K1YllQHwsSZMfJESoZfp79BtBQQ-VxYVYGc\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/verify-reset-code",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "verify-reset-code"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Reset Password",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{passwordResetToken}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"newPassword\": \"1qazxsw2J%\",\n  \"confirmPassword\": \"1qazxsw2J%\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/reset-password",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "reset-password"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Resend OTP",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"email\": \"superadmin@example.com\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/resend-otp",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "resend-otp"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Change Password",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{accessToken}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"currentPassword\": \"ChangeMe@12345\",\n  \"newPassword\": \"1qazxsw2J%\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/change-password",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "change-password"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Complete Profile",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{onboardingToken}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "data",
+                                            "value": "{\n  \"userRole\": \"landlord\",\n  \"countryCode\": \"+1\",\n  \"address\": \"123 Main St, New York, NY\"\n}",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "propertyImages",
+                                            "type": "file",
+                                            "description": "Limit Up To 10",
+                                            "src": "/C:/Users/NewAdmin/Downloads/Fashion-Category.jpg"
+                                        },
+                                        {
+                                            "key": "propertyVideos",
+                                            "type": "file",
+                                            "description": "Limit Up To 5",
+                                            "src": "/C:/Users/NewAdmin/Downloads/Mens-Category.jpg"
+                                        },
+                                        {
+                                            "key": "avatar",
+                                            "type": "file",
+                                            "uuid": "023ab488-1225-4f2a-bfdf-8aab420cf05b",
+                                            "src": "/C:/Users/NewAdmin/Downloads/Fashion-Category.jpg"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/complete-profile",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "complete-profile"]
+                                }
+                            },
+                            "response": []
+                        }
+                    ],
+                    "description": "Authentication and authorization endpoints."
+                },
+                {
+                    "name": "Profile",
+                    "item": [
+                        {
+                            "name": "Get My Profile",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{superAdmin}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/users/me",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["users", "me"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Update Profile",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{USER}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "PATCH",
+                                "header": [],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "data",
+                                            "value": "{\n    \"name\": \"USER\"\n}",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "avatar",
+                                            "type": "file",
+                                            "src": "/C:/Users/NewAdmin/Downloads/wavy-black-white-background.png"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/users/me",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["users", "me"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Delete Account",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{accessToken}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "DELETE",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/users/me",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["users", "me"]
+                                }
+                            },
+                            "response": []
+                        }
+                    ],
+                    "description": "User profile management."
+                },
+                {
+                    "name": "Notifications",
+                    "item": [
+                        {
+                            "name": "List My Notifications",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{user}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/notifications?page=1&limit=20&sort=-createdAt&isRead=true",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["notifications"],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "key": "limit",
+                                            "value": "20"
+                                        },
+                                        {
+                                            "key": "sort",
+                                            "value": "-createdAt"
+                                        },
+                                        {
+                                            "key": "isRead",
+                                            "value": "true"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Mark Notification as Read",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{user}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "PATCH",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/notifications/:id/read",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["notifications", ":id", "read"],
+                                    "variable": [
+                                        {
+                                            "key": "id",
+                                            "value": "6a374d1e2ef8ab188c2a5ce1"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Mark All as Read",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/notifications/read-all",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["notifications", "read-all"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Get Unread Count",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{user}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/notifications/unread-count",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["notifications", "unread-count"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Create Notification",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"userId\": \"<user_id>\",\n  \"title\": \"Claim Approved\",\n  \"message\": \"Your claim CLM-0001 has been approved.\",\n  \"type\": \"claim_approved\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/notifications",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["notifications"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Test Push Notification",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"title\": \"Test Title\",\n  \"body\": \"Test body message\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/notifications/test-broadcast-push",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["notifications", "test-broadcast-push"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Broadcast to All Users",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"title\": \"Maintenance Notice\",\n  \"message\": \"Scheduled downtime tonight at 2 AM.\",\n  \"type\": \"info\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/notifications/broadcast",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["notifications", "broadcast"]
+                                }
+                            },
+                            "response": []
+                        }
+                    ],
+                    "description": "User notification management."
+                },
+                {
+                    "name": "Settings",
+                    "item": [
+                        {
+                            "name": "Get Public Content",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/settings/public/:slug",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["settings", "public", ":slug"],
+                                    "variable": [
+                                        {
+                                            "key": "slug",
+                                            "value": "about_us",
+                                            "description": "privacy_policy, terms_and_conditions. about_us, app_info"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Submit Contact Form",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"subject\": \"Account Inquiry\",\n  \"message\": \"I have a question about my claim status.\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/settings/contact",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["settings", "contact"]
+                                }
+                            },
+                            "response": []
+                        }
+                    ],
+                    "description": "Public settings pages (Privacy, Terms, About, Delete Instructions) and contact form."
+                },
+                {
+                    "name": "Upload",
+                    "item": [
+                        {
+                            "name": "Upload File",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "file",
+                                            "type": "file",
+                                            "value": null
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/upload",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["upload"]
+                                }
+                            },
+                            "response": []
+                        }
+                    ],
+                    "description": "Generic file upload endpoint."
+                },
+                {
+                    "name": "Health",
+                    "item": [
+                        {
+                            "name": "Health Check",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/health",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["health"]
+                                }
+                            },
+                            "response": []
+                        }
+                    ],
+                    "description": "Health check endpoint."
+                }
+            ],
+            "description": "User-facing endpoints — register, login, claims, subscriptions, payments, notifications, profile, home, settings."
+        },
+        {
+            "name": "Admin",
+            "item": [
+                {
+                    "name": "Auth",
+                    "item": [
+                        {
+                            "name": "Admin Login",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "const json = pm.response.json();",
+                                            "if (json.data?.tokens?.accessToken) {",
+                                            "  pm.collectionVariables.set(`${json.data.user.role}`, json.data.tokens.accessToken);",
+                                            "}"
+                                        ],
+                                        "type": "text/javascript",
+                                        "packages": {},
+                                        "requests": {}
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"email\": \"superadmin@example.com\",\n  \"password\": \"1qazxsw2J%\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/auth/login",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "login"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Admin Get Me",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/auth/me",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["auth", "me"]
+                                }
+                            },
+                            "response": []
+                        }
+                    ],
+                    "description": "Admin authentication (same as user auth, role-gated)."
+                },
+                {
+                    "name": "Settings",
+                    "item": [
+                        {
+                            "name": "List All Settings",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/admin/settings",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["admin", "settings"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Get Setting By Slug",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{admin}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/admin/settings/:slug",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["admin", "settings", ":slug"],
+                                    "variable": [
+                                        {
+                                            "key": "slug",
+                                            "value": "app_info"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Update Setting",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{admin}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"title\": \"Privacy Policy\",\n  \"content\": \"<p>Updated privacy policy content here.</p>\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/admin/settings/:slug",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["admin", "settings", ":slug"],
+                                    "variable": [
+                                        {
+                                            "key": "slug",
+                                            "value": "privacy_policy"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Update The app_info",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{admin}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"metadata\": {\n    \"emails\": \"info@drft.com,support@drft.com\",\n    \"phones\": \"+11234567890,+10987654321\",\n    \"address\": \"123 Main Street, New York, NY 10001\"\n  }\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/admin/settings/:slug",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["admin", "settings", ":slug"],
+                                    "query": [
+                                        {
+                                            "key": "",
+                                            "value": null,
+                                            "type": "text",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "slug",
+                                            "value": "app_info"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "List Contact Submissions",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{admin}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/admin/settings/contacts",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["admin", "settings", "contacts"]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Get Public Settings",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/settings/public/:slug",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["settings", "public", ":slug"],
+                                    "variable": [
+                                        {
+                                            "key": "slug",
+                                            "value": "app_info",
+                                            "description": "privacy_policy, terms_and_conditions. about_us, app_info"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ],
+                    "description": "Admin settings management — view/update privacy, terms, about, delete instructions, view contact submissions."
+                },
+                {
+                    "name": "Notifications",
+                    "item": [
+                        {
+                            "name": "List Notifications",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{admin}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/admin/notifications?page=1&limit=5&createdAt=1",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["admin", "notifications"],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "key": "limit",
+                                            "value": "5"
+                                        },
+                                        {
+                                            "key": "createdAt",
+                                            "value": "1"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Broadcast Notification",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{admin}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"title\": \"System Maintenance\",\n  \"message\": \"The system will be down for maintenance from 2-4 AM.\",\n  \"type\": \"info\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/admin/notifications/broadcast",
+                                    "host": ["{{base_url}}"],
+                                    "path": ["admin", "notifications", "broadcast"]
+                                }
+                            },
+                            "response": []
+                        }
+                    ],
+                    "description": "Admin notification management and broadcasting."
+                }
+            ],
+            "description": "Admin-only endpoints — dashboard, user management, claim approval, plan CRUD, settings management, notifications."
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [""]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [""]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": ""
+        },
+        {
+            "key": "admin",
+            "value": ""
+        },
+        {
+            "key": "accessToken",
+            "value": ""
+        },
+        {
+            "key": "user",
+            "value": ""
+        },
+        {
+            "key": "onboardingToken",
+            "value": ""
+        },
+        {
+            "key": "passwordResetToken",
+            "value": ""
+        },
+        {
+            "key": "superAdmin",
+            "value": ""
+        },
+        {
+            "key": "USER",
+            "value": ""
+        }
+    ]
+}

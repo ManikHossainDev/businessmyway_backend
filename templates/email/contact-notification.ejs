@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="x-apple-disable-message-reformatting"/>
+  <meta name="color-scheme" content="light"/>
+  <meta name="supported-color-schemes" content="light"/>
+  <title>New Contact Form Submission</title>
+  <%- include("partials/styles") %>
+</head>
+<body style="margin:0;padding:0;background-color:#F5F6FA;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+
+  <!-- Preheader -->
+  <div style="display:none;max-height:0;overflow:hidden;font-size:1px;color:#F5F6FA;line-height:1px;">
+    New contact form submission from <%= typeof name !== 'undefined' ? name : 'a user' %>. Review the details and respond.&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F6FA;">
+    <tr>
+      <td align="center" style="padding:32px 12px 44px;">
+
+        <!-- Logo — above card -->
+        <%- include("partials/logo") %>
+
+        <!-- Card -->
+        <table role="presentation" class="ew" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06),0 8px 28px rgba(3,72,172,0.08);">
+
+          <!-- Hero header -->
+          <tr>
+            <td style="background:#ffffff;padding:36px 24px 28px;text-align:center;border-bottom:1px solid #E5E7EB;">
+              <p style="margin:0 0 14px;font-size:44px;line-height:1;mso-line-height-rule:exactly;">&#128231;</p>
+              <h1 style="margin:0 0 8px;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:24px;font-weight:700;color:#0348AC;line-height:1.25;letter-spacing:-0.4px;">
+                New Contact Submission
+              </h1>
+              <p style="margin:0;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;font-weight:400;color:#6B7280;line-height:1.55;">
+                A user has sent you a message via the contact form.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Submission details -->
+          <tr>
+            <td style="padding:28px 24px 24px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F3F4F6;border-radius:12px;overflow:hidden;">
+                <tr>
+                  <td style="padding:18px 20px;">
+                    <p style="margin:0 0 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#9CA3AF;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                      Contact Details
+                    </p>
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="padding:7px 0;border-bottom:1px solid #E5E7EB;">
+                          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td style="font-size:12px;color:#9CA3AF;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;width:110px;vertical-align:middle;">Name</td>
+                              <td style="font-size:13px;color:#171717;font-weight:600;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;vertical-align:middle;text-align:right;"><%= typeof name !== 'undefined' ? name : '&mdash;' %></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:7px 0;border-bottom:1px solid #E5E7EB;">
+                          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td style="font-size:12px;color:#9CA3AF;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;width:110px;vertical-align:middle;">Email</td>
+                              <td style="font-size:13px;color:#171717;font-weight:600;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;vertical-align:middle;text-align:right;word-break:break-all;"><a href="mailto:<%= typeof email !== 'undefined' ? email : '' %>" style="color:#0348AC;text-decoration:none;font-weight:600;"><%= typeof email !== 'undefined' ? email : '&mdash;' %></a></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:7px 0;border-bottom:1px solid #E5E7EB;">
+                          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td style="font-size:12px;color:#9CA3AF;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;width:110px;vertical-align:middle;">Subject</td>
+                              <td style="font-size:13px;color:#171717;font-weight:600;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;vertical-align:middle;text-align:right;"><%= typeof subject !== 'undefined' ? subject : '&mdash;' %></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:7px 0;">
+                          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td style="font-size:12px;color:#9CA3AF;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;width:110px;vertical-align:top;padding-top:6px;">Message</td>
+                              <td style="font-size:13px;color:#171717;font-weight:600;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;vertical-align:top;text-align:right;padding-top:6px;max-width:300px;word-break:break-word;white-space:pre-wrap;"><%= typeof message !== 'undefined' ? message : '&mdash;' %></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 24px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr><td style="border-top:1px solid #E5E7EB;font-size:0;line-height:0;">&nbsp;</td></tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td><%- include("partials/footer") %></td>
+          </tr>
+
+        </table>
+
+        <!-- Copyright -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="max-width:620px;width:100%;margin:0 auto;">
+          <tr>
+            <td align="center" style="padding:20px 16px 0;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:11px;line-height:1.6;color:#9CA3AF;">
+              <p style="margin:0;">&copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.</p>
+              <p style="margin:4px 0 0;">
+                <a href="#" style="color:#9CA3AF;text-decoration:underline;">Unsubscribe</a>&nbsp;&middot;&nbsp;<a href="#" style="color:#9CA3AF;text-decoration:underline;">Privacy Policy</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

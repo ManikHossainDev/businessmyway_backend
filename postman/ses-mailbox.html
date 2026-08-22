@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dev Mailbox</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,sans-serif; background:#f5f5f5; padding:20px; color:#333; }
+  h1 { margin-bottom:20px; font-size:24px; }
+  .toolbar { display:flex; gap:10px; margin-bottom:20px; align-items:center; flex-wrap:wrap; }
+  .toolbar input { flex:1; min-width:200px; padding:8px 12px; border:1px solid #ccc; border-radius:6px; font-size:14px; }
+  .toolbar button { padding:8px 16px; background:#0066cc; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
+  .toolbar button:hover { background:#0052a3; }
+  .toolbar .badge { background:#e8e8e8; padding:4px 10px; border-radius:12px; font-size:13px; white-space:nowrap; }
+  table { width:100%; border-collapse:collapse; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.1); }
+  th, td { padding:12px 16px; text-align:left; border-bottom:1px solid #eee; font-size:14px; }
+  th { background:#fafafa; font-weight:600; color:#666; text-transform:uppercase; font-size:12px; letter-spacing:.5px; }
+  tr:hover td { background:#f0f7ff; cursor:pointer; }
+  .empty { text-align:center; padding:40px; color:#999; }
+  .badge-status { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.4px; }
+  .s-otp_sent      { background:#dbeafe; color:#1d4ed8; }
+  .s-otp_resent    { background:#fef9c3; color:#92400e; }
+  .s-reset_requested { background:#fde8d8; color:#c2410c; }
+  .s-verified      { background:#dcfce7; color:#15803d; }
+  .s-sent          { background:#f3f4f6; color:#374151; }
+  #detailModal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:100; }
+  #detailModal.open { display:flex; }
+  #detailModal .modal { background:#fff; border-radius:12px; width:90%; max-width:720px; max-height:85vh; overflow-y:auto; padding:24px; }
+  #detailModal h2 { margin-bottom:16px; font-size:18px; }
+  #detailModal .close { float:right; background:none; border:none; font-size:24px; cursor:pointer; color:#999; line-height:1; }
+  .field { margin-bottom:14px; }
+  .field label { font-weight:600; display:block; margin-bottom:4px; color:#666; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  .field .val { font-size:14px; word-break:break-all; }
+  .html-preview { border:1px solid #e5e7eb; border-radius:6px; padding:12px; margin-top:4px; max-height:320px; overflow-y:auto; background:#fafafa; }
+</style>
+</head>
+<body>
+<h1>📬 Dev Mailbox</h1>
+<div class="toolbar">
+  <input id="apiBase" value="http://localhost:5000/api/v1" placeholder="API base URL" />
+  <button onclick="fetchEmails()">Refresh</button>
+  <span class="badge" id="count">0 emails</span>
+  <span style="font-size:12px;color:#999">Auto-refreshes every 20s</span>
+</div>
+<table>
+  <thead>
+    <tr><th>To</th><th>Subject</th><th>OTP</th><th>Status</th><th>Time</th></tr>
+  </thead>
+  <tbody id="tbody">
+    <tr><td class="empty" colspan="5">Click "Refresh" or wait for auto-refresh</td></tr>
+  </tbody>
+</table>
+
+<div id="detailModal">
+  <div class="modal">
+    <button class="close" onclick="closeDetail()">&times;</button>
+    <h2 id="detailSubject">Email Detail</h2>
+    <div id="detailBody"></div>
+  </div>
+</div>
+
+<script>
+const apiBaseEl = document.getElementById('apiBase');
+const tbody = document.getElementById('tbody');
+const countEl = document.getElementById('count');
+
+const STATUS_LABELS = {
+  otp_sent:         'OTP Sent',
+  otp_resent:       'OTP Resent',
+  reset_requested:  'Reset Requested',
+  verified:         'Verified',
+  sent:             'Sent',
+};
+
+async function fetchEmails() {
+  try {
+    const res = await fetch(apiBaseEl.value.replace(/\/$/, '') + '/dev/mailbox');
+    const json = await res.json();
+    const emails = json.data?.emails || [];
+    countEl.textContent = emails.length + ' email' + (emails.length === 1 ? '' : 's');
+    if (emails.length === 0) {
+      tbody.innerHTML = '<tr><td class="empty" colspan="5">📭 No emails yet. Register a user or request an OTP.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = emails.map(m => {
+      const label = STATUS_LABELS[m.status] || m.status;
+      const time = new Date(m.sentAt).toLocaleTimeString();
+      return `<tr onclick="showDetail(${JSON.stringify(m).replace(/"/g,'&quot;')})">
+        <td>${esc(m.to)}</td>
+        <td>${esc(m.subject)}</td>
+        <td><strong>${m.otp || '—'}</strong></td>
+        <td><span class="badge-status s-${m.status}">${label}</span></td>
+        <td>${time}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td class="empty" colspan="5">❌ Error: ${esc(e.message)} — is the server running?</td></tr>`;
+  }
+}
+
+function showDetail(m) {
+  document.getElementById('detailSubject').textContent = m.subject || '(no subject)';
+  const label = STATUS_LABELS[m.status] || m.status;
+  document.getElementById('detailBody').innerHTML = `
+    <div class="field"><label>From</label><div class="val">${esc(m.from)}</div></div>
+    <div class="field"><label>To</label><div class="val">${esc(m.to)}</div></div>
+    <div class="field"><label>Subject</label><div class="val">${esc(m.subject)}</div></div>
+    <div class="field"><label>OTP</label><div class="val"><strong>${m.otp || '—'}</strong></div></div>
+    <div class="field"><label>Status</label><div class="val"><span class="badge-status s-${m.status}">${label}</span></div></div>
+    <div class="field"><label>Sent At</label><div class="val">${new Date(m.sentAt).toLocaleString()}</div></div>
+    <div class="field"><label>Body Preview</label><div class="html-preview">${m.html || '<em>No body</em>'}</div></div>
+  `;
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeDetail() { document.getElementById('detailModal').classList.remove('open'); }
+function esc(s) { const d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
+
+fetchEmails();
+setInterval(fetchEmails, 20000);
+</script>
+</body>
+</html>
