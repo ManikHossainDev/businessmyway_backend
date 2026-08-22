@@ -10,6 +10,7 @@ export interface IUser {
     password: string;
     avatar?: string;
     address?: string;
+    dateOfBirth?: Date;
     role: Role;
     status: UserStatus;
     registrationStrategy: AuthStrategy;
@@ -48,6 +49,7 @@ export interface CreateUserInput {
     phone?: string;
     avatar?: string;
     agreeTermsAndConditions: boolean;
+    dateOfBirth?: string;
     registrationStrategy?: AuthStrategy;
     lastLoginStrategy?: AuthStrategy;
     lastLoginAt?: Date;

@@ -10,6 +10,15 @@ export const registerBodySchema = z.object({
     confirmPassword: z.string().min(1),
     phone: z.string().trim().optional(),
     agreeTermsAndConditions: z.boolean({ error: 'You must agree to the terms and conditions' }),
+    dateOfBirth: z.string()
+        .min(1, 'Date of birth is required')
+        .refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid date format' })
+        .refine((val) => {
+            const birthDate = new Date(val);
+            const today = new Date();
+            const cutoff = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+            return birthDate <= cutoff;
+        }, { message: 'You must be at least 18 years old to register' }),
 }).refine((d) => d.password === d.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],

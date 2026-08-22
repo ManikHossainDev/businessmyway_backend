@@ -57,6 +57,7 @@ describe('AuthService', () => {
             email: 'alice@example.com',
             password: 'Password@123',
             agreeTermsAndConditions: true,
+            dateOfBirth: '2000-01-01',
         });
 
         expect(result.email).toBe('alice@example.com');

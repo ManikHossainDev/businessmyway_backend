@@ -62,7 +62,7 @@ app.use(
 app.use(hpp());
 app.use(
     cors({
-        origin: config.app.corsOrigins,
+        origin: "*",
         credentials: true,
     }),
 );

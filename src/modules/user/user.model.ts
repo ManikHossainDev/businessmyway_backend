@@ -80,6 +80,9 @@ const userSchema = new Schema<IUserDocument>(
             type: String,
             trim: true,
         },
+        dateOfBirth: {
+            type: Date,
+        },
         lastLoginAt: {
             type: Date,
         },

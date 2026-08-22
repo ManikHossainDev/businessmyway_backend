@@ -424,6 +424,7 @@ export class AuthService {
                 lockUntil: null,
                 avatar: payload.avatar || '',
                 phone: payload.phone || '',
+                dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : undefined,
                 countryCode: '',
                 address: '',
                 expiresAt: expireDate,

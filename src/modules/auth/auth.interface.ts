@@ -13,6 +13,7 @@ export interface AuthUser {
     isEmailVerified: boolean;
     avatar?: string;
     address?: string;
+    dateOfBirth?: Date;
     onboardingStep: OnboardingStep;
     isOnboardingCompleted: boolean;
     notificationToken?: string;
@@ -44,6 +45,7 @@ export interface RegisterInput {
     phone?: string;
     avatar?: string;
     agreeTermsAndConditions: boolean;
+    dateOfBirth: string;
 }
 
 export interface RegisterResponse {

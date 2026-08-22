@@ -45,6 +45,7 @@ export class UserService {
                 termsAcceptedAt: payload.termsAcceptedAt ?? new Date(),
                 phone: payload.phone || '',
                 avatar: payload.avatar || '',
+                dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : undefined,
                 expiresAt: payload.expiresAt,
             } as Partial<IUserDocument>,
             options,
