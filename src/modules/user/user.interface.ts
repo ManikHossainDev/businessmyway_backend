@@ -27,8 +27,6 @@ export interface IUser {
     lifetimeQualifiedSales: number;
     lifetimeQualifiedOrders: number;
     totalCommissionEarned: number;
-    discountValue: number;
-    commissionValue: number;
     walletId?: Types.ObjectId;
     notificationToken?: string;
     deviceType?: 'ios' | 'android' | 'web';
@@ -80,8 +78,6 @@ export interface UpdateUserInput {
     lifetimeQualifiedSales?: number;
     lifetimeQualifiedOrders?: number;
     totalCommissionEarned?: number;
-    discountValue?: number;
-    commissionValue?: number;
     walletId?: Types.ObjectId;
     failedLoginAttempts?: number;
     lockUntil?: Date | null;

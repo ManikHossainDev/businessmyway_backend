@@ -15,8 +15,6 @@ export interface AuthUser {
     address?: string;
     onboardingStep: OnboardingStep;
     isOnboardingCompleted: boolean;
-    discountValue: number;
-    commissionValue: number;
     notificationToken?: string;
     deviceType?: 'ios' | 'android' | 'web';
     expiresAt?: Date;

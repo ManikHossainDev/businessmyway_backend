@@ -180,8 +180,6 @@ export class AuthService {
             address: user.address,
             onboardingStep: user.onboardingStep,
             isOnboardingCompleted: user.isOnboardingCompleted,
-            discountValue: user.discountValue,
-            commissionValue: user.commissionValue,
             notificationToken: user.notificationToken,
             deviceType: user.deviceType,
             createdAt: user.createdAt,

@@ -134,16 +134,7 @@ const userSchema = new Schema<IUserDocument>(
             default: 0,
             min: 0,
         },
-        discountValue: {
-            type: Number,
-            default: 0,
-            min: 0,
-        },
-        commissionValue: {
-            type: Number,
-            default: 0,
-            min: 0,
-        },
+
         walletId: {
             type: Schema.Types.ObjectId,
             ref: 'Wallet',

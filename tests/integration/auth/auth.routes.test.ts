@@ -20,8 +20,6 @@ describe('Auth routes', () => {
                 isEmailVerified: false,
                 onboardingStep: ONBOARDING_STEPS.REGISTERED,
                 isOnboardingCompleted: false,
-                discountValue: 0,
-                commissionValue: 0,
             },
             tokens: {
                 accessToken: 'access-token',
