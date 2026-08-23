@@ -12,7 +12,6 @@ import { s3StorageService } from '@/infrastructure/storage/s3.service';
 
 import authRoutes from '@/modules/auth/auth.routes';
 import userRoutes from '@/modules/user/user.routes';
-import walletRoutes from '@/modules/wallet/wallet.routes';
 import notificationRoutes from '@/modules/notification/notification.routes';
 import settingRoutes from '@/modules/settings/settings.routes';
 import adminRoutes from '@/modules/admin/admin.routes';
@@ -74,7 +73,6 @@ router.post(
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
-router.use('/wallets', walletRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/settings', settingRoutes);
 router.use('/admin', adminRoutes);

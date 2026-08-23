@@ -117,32 +117,6 @@ const userSchema = new Schema<IUserDocument>(
         termsAcceptedAt: {
             type: Date,
         },
-        currentLevelId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Level',
-            default: null,
-        },
-        lifetimeQualifiedSales: {
-            type: Number,
-            default: 0,
-            min: 0,
-        },
-        lifetimeQualifiedOrders: {
-            type: Number,
-            default: 0,
-            min: 0,
-        },
-        totalCommissionEarned: {
-            type: Number,
-            default: 0,
-            min: 0,
-        },
-
-        walletId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Wallet',
-            default: null,
-        },
         notificationToken: {
             type: String,
             trim: true,

@@ -1,4 +1,4 @@
-import type { Document, Types } from 'mongoose';
+import type { Document } from 'mongoose';
 import type { Role } from '@/core/constants/roles';
 import type { AuthStrategy, UserStatus, OnboardingStep } from './user.constants';
 
@@ -24,11 +24,6 @@ export interface IUser {
     rejectionReason?: string | null;
     agreeTermsAndConditions: boolean;
     termsAcceptedAt?: Date;
-    currentLevelId?: Types.ObjectId;
-    lifetimeQualifiedSales: number;
-    lifetimeQualifiedOrders: number;
-    totalCommissionEarned: number;
-    walletId?: Types.ObjectId;
     notificationToken?: string;
     deviceType?: 'ios' | 'android' | 'web';
     isDeleted: boolean;
@@ -76,11 +71,6 @@ export interface UpdateUserInput {
     onboardingStep?: OnboardingStep;
     isOnboardingCompleted?: boolean;
     rejectionReason?: string | null;
-    currentLevelId?: Types.ObjectId;
-    lifetimeQualifiedSales?: number;
-    lifetimeQualifiedOrders?: number;
-    totalCommissionEarned?: number;
-    walletId?: Types.ObjectId;
     failedLoginAttempts?: number;
     lockUntil?: Date | null;
     isDeleted?: boolean;

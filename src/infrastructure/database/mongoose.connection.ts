@@ -61,7 +61,30 @@ export const connectDatabase = async (signal?: AbortSignal): Promise<void> => {
     );
 
     registerConnectionListeners();
+    await unsetRemovedUserFields();
     logger.info('MongoDB connected successfully');
+};
+
+const REMOVED_USER_FIELDS = {
+    currentLevelId: 1,
+    lifetimeQualifiedSales: 1,
+    lifetimeQualifiedOrders: 1,
+    totalCommissionEarned: 1,
+    walletId: 1,
+};
+
+const unsetRemovedUserFields = async (): Promise<void> => {
+    const db = mongoose.connection.db;
+    if (!db) {
+        return;
+    }
+
+    const result = await db.collection('users').updateMany({}, { $unset: REMOVED_USER_FIELDS });
+    if (result.modifiedCount > 0) {
+        logger.info('Removed leftover user fields from MongoDB', {
+            modifiedCount: result.modifiedCount,
+        });
+    }
 };
 
 export const disconnectDatabase = async (): Promise<void> => {

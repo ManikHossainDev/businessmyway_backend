@@ -63,8 +63,6 @@ import { eventBus } from '@/infrastructure/events/event-bus';
 import { logger } from '@/infrastructure/logger/winston.logger';
 import { AssertUserApi } from '@/core/errors/AssertUserApi';
 import { getExpiryDate } from '@/shared/utils/duration';
-import { walletService, type WalletService } from '../wallet/wallet.service';
-import mongoose from 'mongoose';
 
 const MAX_FAILED_ATTEMPTS = config.auth.maxFailedAttempts;
 const LOCK_DURATION = config.auth.lockDurationMinutes * 60 * 1000;
@@ -96,7 +94,6 @@ export class AuthService {
         private readonly users: UserRepository = userRepository,
         private readonly tokens: TokenService = tokenService,
         private readonly userDomainService: UserService = userService,
-        private readonly wallets: WalletService = walletService,
     ) {}
 
     private getRegistrationStrategy(user: IUserDocument): AuthStrategy {
@@ -356,17 +353,6 @@ export class AuthService {
                     agreeTermsAndConditions: true,
                     termsAcceptedAt: now,
                 } as any,
-                options,
-            );
-
-            // Create wallet for social user (already verified)
-            const wallet = await this.wallets.createWallet(
-                new mongoose.Types.ObjectId(toUserId(user)),
-                options,
-            );
-            await this.users.updateById(
-                toUserId(user),
-                { walletId: wallet._id as any } as any,
                 options,
             );
 
@@ -776,17 +762,6 @@ export class AuthService {
         if (!updatedUser) throw new BadRequestError(MESSAGES.AUTH.ACCOUNT_NOT_FOUND);
 
         await this.tokens.revokeAllByUser(toUserId(updatedUser), TOKEN_TYPES.VERIFY_EMAIL, options);
-
-        // Create wallet for the user after email verification
-        const wallet = await this.wallets.createWallet(
-            new mongoose.Types.ObjectId(toUserId(updatedUser)),
-            options,
-        );
-        await this.users.updateById(
-            toUserId(updatedUser),
-            { walletId: wallet._id as any } as any,
-            options,
-        );
 
         eventBus.emit('auth:email-verified', {
             userId: toUserId(updatedUser),
