@@ -863,7 +863,7 @@
                                         {
                                             "key": "slug",
                                             "value": "about_us",
-                                            "description": "privacy_policy, terms_and_conditions. about_us, app_info"
+                                            "description": "privacy_policy, terms_and_conditions, about_us, refund_policy, shipping_policy"
                                         }
                                     ]
                                 }
@@ -1191,7 +1191,7 @@
                                         {
                                             "key": "slug",
                                             "value": "app_info",
-                                            "description": "privacy_policy, terms_and_conditions. about_us, app_info"
+                                            "description": "privacy_policy, terms_and_conditions, about_us, refund_policy, shipping_policy"
                                         }
                                     ]
                                 }
@@ -1199,7 +1199,7 @@
                             "response": []
                         }
                     ],
-                    "description": "Admin settings management — view/update privacy, terms, about, delete instructions, view contact submissions."
+                    "description": "Admin settings management — view/update privacy, terms, about, refund, shipping, view contact submissions."
                 },
                 {
                     "name": "Notifications",

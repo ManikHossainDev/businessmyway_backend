@@ -1,12 +1,12 @@
 import mongoose, { Schema } from 'mongoose';
-import type { ISettingDocument } from './settings.interface';
+import { SETTING_SLUGS, type ISettingDocument } from './settings.interface';
 import { toJSONPlugin } from '@infra/database/plugins/toJSON.plugin';
 
 const settingSchema = new Schema<ISettingDocument>(
     {
         slug: {
             type: String,
-            enum: ['privacy_policy', 'terms_and_conditions', 'about_us'],
+            enum: SETTING_SLUGS,
             required: [true, 'Slug is required'],
             unique: true,
             index: true,

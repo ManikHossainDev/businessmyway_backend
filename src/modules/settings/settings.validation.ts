@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import { SETTING_SLUGS } from './settings.interface';
+
+export const settingSlugParamSchema = z.object({
+    slug: z.enum(SETTING_SLUGS),
+});
 
 export const updateSettingBodySchema = z.object({
     title: z.string().trim().min(1).max(200).optional(),

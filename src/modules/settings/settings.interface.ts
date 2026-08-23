@@ -1,6 +1,14 @@
 import type { Document } from 'mongoose';
 
-export type SettingSlug = 'privacy_policy' | 'terms_and_conditions' | 'about_us';
+export const SETTING_SLUGS = [
+    'privacy_policy',
+    'terms_and_conditions',
+    'about_us',
+    'refund_policy',
+    'shipping_policy',
+] as const;
+
+export type SettingSlug = (typeof SETTING_SLUGS)[number];
 
 export interface IAppInfoMetadata {
     emails?: string;

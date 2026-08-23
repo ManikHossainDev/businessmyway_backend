@@ -556,7 +556,7 @@ Base path: `/api/v1/settings`
 | GET | `/settings/public/:slug` | No | Get a public setting by slug |
 | POST | `/settings/contact` | No | Submit a contact form |
 
-**Available slugs:** `privacy_policy` / `terms_and_conditions` / `about_us`
+**Available slugs:** `privacy_policy` / `terms_and_conditions` / `about_us` / `refund_policy` / `shipping_policy`
 
 ---
 
@@ -763,7 +763,7 @@ Collection: `claims`
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `slug` | Enum | `privacy_policy` / `terms_and_conditions` / `about_us`  |
+| `slug` | Enum | `privacy_policy` / `terms_and_conditions` / `about_us` / `refund_policy` / `shipping_policy`  |
 | `title` | String | |
 | `content` | String | Rich text content |
 | `isPublic` | Boolean | Whether accessible without auth |

@@ -54,9 +54,9 @@ export class SettingsService {
 
     async upsert(slug: SettingSlug, data: { title?: string; content?: string; metadata?: Record<string, unknown> }): Promise<ISettingDocument> {
         const fields: Record<string, unknown> = {};
-        if (data.title !== undefined) fields['title'] = data.title;
-        if (data.content !== undefined) fields['content'] = data.content;
-        if (data.metadata !== undefined) fields['metadata'] = data.metadata;
+        if (data.title !== undefined) fields.title = data.title;
+        if (data.content !== undefined) fields.content = data.content;
+        if (data.metadata !== undefined) fields.metadata = data.metadata;
 
         const setting = await SettingModel.findOneAndUpdate(
             { slug },
