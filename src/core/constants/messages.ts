@@ -78,6 +78,12 @@ export const MESSAGES = {
         NOT_FOUND: 'Category not found.',
         ALREADY_EXISTS: 'A category with this name already exists.',
     },
+    BRAND: {
+        FETCHED: 'Brands fetched successfully.',
+        CREATED: 'Brand created successfully.',
+        UPDATED: 'Brand updated successfully.',
+        NOT_FOUND: 'Brand not found.',
+    },
     ONBOARDING: {
         VERIFY_REQUIRED: 'Please verify your email first.',
         PROFILE_REQUIRED: 'Please complete your profile first.',

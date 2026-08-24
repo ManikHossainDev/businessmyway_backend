@@ -29,6 +29,7 @@
     - [Notifications](#107-notifications)
     - [Settings & Contact](#108-settings--contact)
     - [Categories](#109-categories)
+    - [Brands](#1010-brands)
     - [File Upload](#1010-file-upload)
     - [Admin — Dashboard](#1010-admin--dashboard)
     - [Admin — Users](#1011-admin--users)
@@ -36,6 +37,7 @@
     - [Admin — Plans](#1013-admin--plans)
     - [Admin — Settings](#1015-admin--settings)
     - [Admin — Categories](#1016-admin--categories)
+    - [Admin — Brands](#1017-admin--brands)
     - [Admin — Notifications](#1017-admin--notifications)
     - [Dev (Development Only)](#1016-dev-development-only)
 11. [Database Models](#11-database-models)
@@ -575,6 +577,21 @@ Base path: `/api/v1/categories`
 
 ---
 
+### 10.10 Brands
+
+Base path: `/api/v1/brands`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/brands/` | No | List brands. Optional `?category=Name` filters by category name |
+| GET | `/brands/:id` | No | Get a brand by id |
+
+**Query:** `category` — category **name** (case-insensitive). Omit it to list all brands.
+
+**Fields:** `category` (`{ id, name }`), `title`, `description`, `subtitles` (string array).
+
+---
+
 ### 10.10 File Upload
 
 | Method | Path | Auth | Description |
@@ -657,6 +674,21 @@ Base path: `/api/v1/admin/categories`
 |--------|------|------|-------------|
 | GET | `/admin/categories/` | Admin | List all categories |
 | POST | `/admin/categories/` | Admin | Create a category (`{ name }`) |
+| PUT | `/admin/categories/:id` | Admin | Update a category (`{ name }`) |
+
+---
+
+### 10.17 Admin — Brands
+
+Base path: `/api/v1/admin/brands`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/admin/brands/` | Admin | List all brands |
+| POST | `/admin/brands/` | Admin | Create a brand |
+| PUT | `/admin/brands/:id` | Admin | Update a brand |
+
+**Body:** `{ category, title, description, subtitles: string[] }` — no delete.
 
 ---
 
@@ -688,6 +720,17 @@ Collection: `categories`
 | Field | Type | Notes |
 |-------|------|-------|
 | `name` | String | Unique, case-insensitive |
+
+### Brand
+
+Collection: `brands`
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `category` | ObjectId → Category | Required |
+| `title` | String | Required |
+| `description` | String | Required |
+| `subtitles` | String[] | At least one value |
 
 ### User
 
