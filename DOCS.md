@@ -38,6 +38,7 @@
     - [Admin — Settings](#1015-admin--settings)
     - [Admin — Categories](#1016-admin--categories)
     - [Admin — Brands](#1017-admin--brands)
+    - [Admin — Subscribers](#1018-admin--subscribers)
     - [Admin — Notifications](#1017-admin--notifications)
     - [Dev (Development Only)](#1016-dev-development-only)
 11. [Database Models](#11-database-models)
@@ -583,10 +584,10 @@ Base path: `/api/v1/brands`
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/brands/` | No | List brands. Optional `?category=Name` filters by category name |
+| GET | `/brands/` | No | List brands. `?category=Name&page=1&limit=12` |
 | GET | `/brands/:id` | No | Get a brand by id |
 
-**Query:** `category` — category **name** (case-insensitive). Omit it to list all brands.
+**Query:** `category` — category **name** (case-insensitive). `page` and `limit` for pagination. Response includes `meta`.
 
 **Fields:** `category` (`{ id, name }`), `title`, `description`, `subtitles` (string array).
 
@@ -684,11 +685,32 @@ Base path: `/api/v1/admin/brands`
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/admin/brands/` | Admin | List all brands |
+| GET | `/admin/brands/` | Admin | List brands. `?page=1&limit=9` |
 | POST | `/admin/brands/` | Admin | Create a brand |
 | PUT | `/admin/brands/:id` | Admin | Update a brand |
 
 **Body:** `{ category, title, description, subtitles: string[] }` — no delete.
+
+---
+
+### 10.18 Subscribers
+
+Base path: `/api/v1/subscribers`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/subscribers/` | No | Subscribe with `{ email, agreed: true }` |
+
+---
+
+### 10.18 Admin — Subscribers
+
+Base path: `/api/v1/admin/subscribers`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/admin/subscribers/` | Admin | List subscribers with user name, phone, and avatar |
+| POST | `/admin/subscribers/:id/email` | Admin | Send email `{ subject, message }` |
 
 ---
 

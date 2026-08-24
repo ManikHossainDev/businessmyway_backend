@@ -5,13 +5,16 @@ import { HTTP_STATUS } from '@/core/constants/httpStatus';
 import { sendResponse } from '@/shared/utils/sendResponse';
 import { MESSAGES } from '@/core/constants/messages';
 import { serializeBrand } from '@/modules/brands/brand.serializer';
+import { parseOffsetPagination } from '@/shared/utils/pagination';
 
-const list: RequestHandler = catchAsync(async (_req, res) => {
-    const brands = await brandService.list();
+const list: RequestHandler = catchAsync(async (req, res) => {
+    const pagination = parseOffsetPagination(req.query as Record<string, unknown>);
+    const result = await brandService.list(undefined, pagination);
     return sendResponse(res, {
         statusCode: HTTP_STATUS.OK,
         message: MESSAGES.BRAND.FETCHED,
-        data: brands.map((brand) => serializeBrand(brand)),
+        data: result.data.map((brand) => serializeBrand(brand)),
+        meta: result.meta as unknown as Record<string, unknown>,
     });
 });
 

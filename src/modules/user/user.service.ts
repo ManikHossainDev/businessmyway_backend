@@ -65,15 +65,23 @@ export class UserService {
         pagination: OffsetPaginationParams,
         options?: RepositoryQueryOptions,
     ): Promise<OffsetPaginationResult<IUserDocument>> {
-        const query: Record<string, unknown> = { ...filters };
+        const query: Record<string, unknown> = { isDeleted: false };
+
+        if (filters.role) query.role = filters.role;
+        if (filters.status) query.status = filters.status;
+        if (filters.onboardingStep) query.onboardingStep = filters.onboardingStep;
+        if (typeof filters.isOnboardingCompleted === 'boolean') {
+            query.isOnboardingCompleted = filters.isOnboardingCompleted;
+        }
 
         if (filters.search) {
-            const safe = escapeRegex(filters.search as string);
-            query.$or = [
-                { name: { $regex: safe, $options: 'i' } },
-                { email: { $regex: safe, $options: 'i' } },
-            ];
-            delete query.search;
+            const safe = escapeRegex(String(filters.search).trim());
+            if (safe) {
+                query.$or = [
+                    { name: { $regex: safe, $options: 'i' } },
+                    { email: { $regex: safe, $options: 'i' } },
+                ];
+            }
         }
 
         return this.repository.paginateOffset(query, pagination, options);

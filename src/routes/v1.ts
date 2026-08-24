@@ -16,6 +16,7 @@ import notificationRoutes from '@/modules/notification/notification.routes';
 import settingRoutes from '@/modules/settings/settings.routes';
 import categoryRoutes from '@/modules/category/category.routes';
 import brandRoutes from '@/modules/brands/brand.routes';
+import subscriberRoutes from '@/modules/subscribers/subscriber.routes';
 import adminRoutes from '@/modules/admin/admin.routes';
 import devRoutes from '@/modules/dev/dev.routes';
 
@@ -79,6 +80,7 @@ router.use('/notifications', notificationRoutes);
 router.use('/settings', settingRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/brands', brandRoutes);
+router.use('/subscribers', subscriberRoutes);
 router.use('/admin', adminRoutes);
 router.use('/dev', devRoutes);
 

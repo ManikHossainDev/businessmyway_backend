@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { validate } from '@/shared/middlewares/validate';
 import { authenticate } from '@/shared/middlewares/authenticate';
+import { authorize } from '@/shared/middlewares/authorize';
 import { uploadSingle, setUploadDir } from '@/shared/middlewares/upload';
 import { parseMultipartData } from '@/shared/middlewares/parseMultipartData';
+import { ROLES } from '@/core/constants/roles';
 import { userController } from './user.controller';
-import { updateProfileBodySchema } from './user.validation';
+import { listUsersQuerySchema, updateProfileBodySchema } from './user.validation';
 
 const router = Router();
 
@@ -13,5 +15,11 @@ router.use(authenticate);
 router.get('/me', userController.getMe);
 router.patch('/me', setUploadDir('avatars'), uploadSingle('avatar'), parseMultipartData, validate({ body: updateProfileBodySchema }), userController.updateMe);
 router.delete('/me', userController.deleteMe);
+router.get(
+    '/',
+    authorize(ROLES.SUPER_ADMIN),
+    validate({ query: listUsersQuerySchema }),
+    userController.listUsers,
+);
 
 export default router;

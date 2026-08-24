@@ -84,6 +84,13 @@ export const MESSAGES = {
         UPDATED: 'Brand updated successfully.',
         NOT_FOUND: 'Brand not found.',
     },
+    SUBSCRIBER: {
+        FETCHED: 'Subscribers fetched successfully.',
+        CREATED: 'Subscribed successfully.',
+        ALREADY_EXISTS: 'This email is already subscribed.',
+        NOT_FOUND: 'Subscriber not found.',
+        EMAIL_SENT: 'Email sent successfully.',
+    },
     ONBOARDING: {
         VERIFY_REQUIRED: 'Please verify your email first.',
         PROFILE_REQUIRED: 'Please complete your profile first.',

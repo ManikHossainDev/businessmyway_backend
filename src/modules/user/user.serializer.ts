@@ -2,7 +2,7 @@
 import type { IUserDocument } from './user.interface';
 
 export const serializeUser = (user: IUserDocument) => ({
-    id: user.id,
+    id: user.id || String((user as { _id?: unknown })._id || ''),
     name: user.name,
     email: user.email,
     phone: user.phone,

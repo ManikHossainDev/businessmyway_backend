@@ -8,6 +8,7 @@ import { MESSAGES } from '@/core/constants/messages';
 import { config } from '@/config';
 import { s3StorageService } from '@/infrastructure/storage/s3.service';
 import { getFileUrl } from '@/infrastructure/storage/local-storage';
+import { parseOffsetPagination } from '@/shared/utils/pagination';
 
 const getMe: RequestHandler = catchAsync(async (req, res) => {
     const user = await userService.getById(req.user!.id);
@@ -49,15 +50,23 @@ const getById: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const listUsers: RequestHandler = catchAsync(async (req, res) => {
-    const result = await userService.listUsers(req.query as any, {
-        page: Number(req.query.page) || 1,
-        limit: Number(req.query.limit) || 10,
-        sort: req.query.sort as string,
-    });
+    const pagination = parseOffsetPagination(req.query as Record<string, unknown>);
+    const query = req.query as Record<string, unknown>;
+    const result = await userService.listUsers(
+        {
+            search: query.search,
+            role: query.role,
+            status: query.status,
+            onboardingStep: query.onboardingStep,
+            isOnboardingCompleted: query.isOnboardingCompleted,
+        },
+        pagination,
+    );
     return sendResponse(res, {
         statusCode: HTTP_STATUS.OK,
         message: MESSAGES.USER.LIST_FETCHED,
-        data: result,
+        data: result.data.map((user) => serializeUser(user)),
+        meta: result.meta as unknown as Record<string, unknown>,
     });
 });
 
