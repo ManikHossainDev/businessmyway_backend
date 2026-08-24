@@ -3,6 +3,7 @@ import { SettingModel } from './settings.model';
 import { ContactModel } from './contact.model';
 import { mailService } from '@/infrastructure/mail/mail.service';
 import { config } from '@/config';
+import { defaultSettingTitle } from './settings.serializer';
 
 const extractEmail = (fromField: string | undefined): string | undefined => {
     if (!fromField) return undefined;
@@ -53,14 +54,18 @@ export class SettingsService {
     }
 
     async upsert(slug: SettingSlug, data: { title?: string; content?: string; metadata?: Record<string, unknown> }): Promise<ISettingDocument> {
-        const fields: Record<string, unknown> = {};
-        if (data.title !== undefined) fields.title = data.title;
-        if (data.content !== undefined) fields.content = data.content;
-        if (data.metadata !== undefined) fields.metadata = data.metadata;
+        const $set: Record<string, unknown> = { isPublic: true };
+        if (data.title !== undefined) $set.title = data.title;
+        if (data.content !== undefined) $set.content = data.content;
+        if (data.metadata !== undefined) $set.metadata = data.metadata;
+
+        const $setOnInsert: Record<string, unknown> = { slug };
+        if ($set.title === undefined) $setOnInsert.title = defaultSettingTitle(slug);
+        if ($set.content === undefined) $setOnInsert.content = '';
 
         const setting = await SettingModel.findOneAndUpdate(
             { slug },
-            { $set: fields },
+            { $set, $setOnInsert },
             { new: true, upsert: true, runValidators: false },
         ).lean<ISettingDocument>();
         return setting!;

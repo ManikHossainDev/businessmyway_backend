@@ -4,6 +4,7 @@ import { catchAsync } from '@/shared/utils/catchAsync';
 import { HTTP_STATUS } from '@/core/constants/httpStatus';
 import { sendResponse } from '@/shared/utils/sendResponse';
 import { MESSAGES } from '@/core/constants/messages';
+import { serializeSetting } from './settings.serializer';
 
 const getPublic: RequestHandler = catchAsync(async (req, res) => {
     const slug = req.params.slug as any;
@@ -18,7 +19,7 @@ const getPublic: RequestHandler = catchAsync(async (req, res) => {
     return sendResponse(res, {
         statusCode: HTTP_STATUS.OK,
         message: MESSAGES.SETTINGS.FETCHED,
-        data: setting,
+        data: serializeSetting(setting),
     });
 });
 

@@ -4,13 +4,14 @@ import { catchAsync } from '@/shared/utils/catchAsync';
 import { HTTP_STATUS } from '@/core/constants/httpStatus';
 import { sendResponse } from '@/shared/utils/sendResponse';
 import { MESSAGES } from '@/core/constants/messages';
+import { serializeSetting } from '@/modules/settings/settings.serializer';
 
 const list: RequestHandler = catchAsync(async (req, res) => {
     const settings = await adminSettingsService.list();
     return sendResponse(res, {
         statusCode: HTTP_STATUS.OK,
         message: MESSAGES.SETTINGS.FETCHED,
-        data: settings,
+        data: settings.map((setting) => serializeSetting(setting)),
     });
 });
 
@@ -26,7 +27,7 @@ const getBySlug: RequestHandler = catchAsync(async (req, res) => {
     return sendResponse(res, {
         statusCode: HTTP_STATUS.OK,
         message: MESSAGES.SETTINGS.FETCHED,
-        data: setting,
+        data: serializeSetting(setting),
     });
 });
 
@@ -39,7 +40,7 @@ const update: RequestHandler = catchAsync(async (req, res) => {
     return sendResponse(res, {
         statusCode: HTTP_STATUS.OK,
         message: MESSAGES.SETTINGS.UPDATED,
-        data: setting,
+        data: serializeSetting(setting),
     });
 });
 

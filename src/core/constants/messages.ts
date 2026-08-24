@@ -71,6 +71,13 @@ export const MESSAGES = {
         NOT_FOUND: 'Content not found.',
         MESSAGE_SENT: 'Your message has been sent successfully.',
     },
+    CATEGORY: {
+        FETCHED: 'Categories fetched successfully.',
+        CREATED: 'Category created successfully.',
+        UPDATED: 'Category updated successfully.',
+        NOT_FOUND: 'Category not found.',
+        ALREADY_EXISTS: 'A category with this name already exists.',
+    },
     ONBOARDING: {
         VERIFY_REQUIRED: 'Please verify your email first.',
         PROFILE_REQUIRED: 'Please complete your profile first.',

@@ -14,6 +14,7 @@ import authRoutes from '@/modules/auth/auth.routes';
 import userRoutes from '@/modules/user/user.routes';
 import notificationRoutes from '@/modules/notification/notification.routes';
 import settingRoutes from '@/modules/settings/settings.routes';
+import categoryRoutes from '@/modules/category/category.routes';
 import adminRoutes from '@/modules/admin/admin.routes';
 import devRoutes from '@/modules/dev/dev.routes';
 
@@ -75,6 +76,7 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/settings', settingRoutes);
+router.use('/categories', categoryRoutes);
 router.use('/admin', adminRoutes);
 router.use('/dev', devRoutes);
 

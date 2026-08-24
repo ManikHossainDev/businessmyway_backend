@@ -7,7 +7,7 @@ export const settingSlugParamSchema = z.object({
 
 export const updateSettingBodySchema = z.object({
     title: z.string().trim().min(1).max(200).optional(),
-    content: z.string().trim().optional(),
+    content: z.string().max(500000).optional(),
     metadata: z.object({
         emails: z.string().trim().optional(),
         phones: z.string().trim().optional(),

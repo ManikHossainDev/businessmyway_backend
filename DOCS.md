@@ -28,13 +28,15 @@
     - [Payments](#106-payments)
     - [Notifications](#107-notifications)
     - [Settings & Contact](#108-settings--contact)
-    - [File Upload](#109-file-upload)
+    - [Categories](#109-categories)
+    - [File Upload](#1010-file-upload)
     - [Admin — Dashboard](#1010-admin--dashboard)
     - [Admin — Users](#1011-admin--users)
     - [Admin — Claims](#1012-admin--claims)
     - [Admin — Plans](#1013-admin--plans)
-    - [Admin — Settings](#1014-admin--settings)
-    - [Admin — Notifications](#1015-admin--notifications)
+    - [Admin — Settings](#1015-admin--settings)
+    - [Admin — Categories](#1016-admin--categories)
+    - [Admin — Notifications](#1017-admin--notifications)
     - [Dev (Development Only)](#1016-dev-development-only)
 11. [Database Models](#11-database-models)
 12. [Middleware Reference](#12-middleware-reference)
@@ -560,7 +562,20 @@ Base path: `/api/v1/settings`
 
 ---
 
-### 10.9 File Upload
+### 10.9 Categories
+
+Base path: `/api/v1/categories`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/categories/` | No | List all categories |
+| GET | `/categories/:id` | No | Get a category by id |
+
+**Fields:** `name` only.
+
+---
+
+### 10.10 File Upload
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
@@ -634,7 +649,18 @@ Base path: `/api/v1/admin/settings`
 
 ---
 
-### 10.15 Admin — Notifications
+### 10.16 Admin — Categories
+
+Base path: `/api/v1/admin/categories`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/admin/categories/` | Admin | List all categories |
+| POST | `/admin/categories/` | Admin | Create a category (`{ name }`) |
+
+---
+
+### 10.17 Admin — Notifications
 
 Base path: `/api/v1/admin/notifications`
 
@@ -654,6 +680,14 @@ Base path: `/api/v1/admin/notifications`
 ---
 
 ## 11. Database Models
+
+### Category
+
+Collection: `categories`
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | String | Unique, case-insensitive |
 
 ### User
 
