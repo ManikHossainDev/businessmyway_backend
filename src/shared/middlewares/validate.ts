@@ -1,4 +1,4 @@
-import type { RequestHandler } from 'express';
+import type { Request, RequestHandler } from 'express';
 import type { ZodError, ZodType } from 'zod';
 
 import { BadRequestError } from '@/core/errors';
@@ -31,13 +31,15 @@ export const validate = (schema: ValidationSchema): RequestHandler => {
             }
 
             if (schema.query) {
-                const parsedQuery = schema.query.parse(req.query) as Record<string, unknown>;
-                const requestQuery = req.query as Record<string, unknown>;
-
-                for (const key of Object.keys(requestQuery)) {
-                    delete requestQuery[key];
-                }
-                Object.assign(requestQuery, parsedQuery);
+                const parsedQuery = schema.query.parse(req.query) as Request['query'];
+                // Express 5 `req.query` is a getter that re-parses the URL as strings.
+                // Replace the property so coerced numbers (minPrice/maxPrice) survive.
+                Object.defineProperty(req, 'query', {
+                    value: parsedQuery,
+                    writable: true,
+                    configurable: true,
+                    enumerable: true,
+                });
             }
 
             next();

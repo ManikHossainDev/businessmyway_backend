@@ -9,7 +9,7 @@ import { parseOffsetPagination } from '@/shared/utils/pagination';
 
 const list: RequestHandler = catchAsync(async (req, res) => {
     const pagination = parseOffsetPagination(req.query as Record<string, unknown>);
-    const result = await brandService.list(undefined, pagination);
+    const result = await brandService.list(undefined, pagination, { activeOnly: false });
     return sendResponse(res, {
         statusCode: HTTP_STATUS.OK,
         message: MESSAGES.BRAND.FETCHED,

@@ -1,6 +1,7 @@
 import type { Types } from 'mongoose';
 import { BrandModel } from './brand.model';
 import { CategoryModel } from '@/modules/category/category.model';
+import { ProductModel } from '@/modules/products/product.model';
 import type { IBrandPopulated } from './brand.interface';
 import { NotFoundError } from '@/core/errors';
 import { MESSAGES } from '@/core/constants/messages';
@@ -25,10 +26,38 @@ const emptyResult = (page: number, limit: number): OffsetPaginationResult<IBrand
     },
 });
 
+const brandId = (brand: IBrandPopulated) => String(brand._id ?? brand.id ?? '');
+
+const attachProductCounts = async (
+    brands: IBrandPopulated[],
+    options?: { activeOnly?: boolean },
+): Promise<IBrandPopulated[]> => {
+    if (!brands.length) return brands;
+
+    const match: Record<string, unknown> = {
+        brand: { $in: brands.map((brand) => brand._id) },
+    };
+    if (options?.activeOnly) {
+        match.isActive = true;
+    }
+
+    const counts = await ProductModel.aggregate<{ _id: Types.ObjectId; count: number }>([
+        { $match: match },
+        { $group: { _id: '$brand', count: { $sum: 1 } } },
+    ]);
+    const countByBrand = new Map(counts.map((row) => [String(row._id), row.count]));
+
+    return brands.map((brand) => ({
+        ...brand,
+        productCount: countByBrand.get(brandId(brand)) ?? 0,
+    }));
+};
+
 export class BrandService {
     async list(
         categoryName?: string,
         pagination?: OffsetPaginationParams,
+        options?: { activeOnly?: boolean },
     ): Promise<OffsetPaginationResult<IBrandPopulated>> {
         const page = Math.max(1, pagination?.page ?? 1);
         const limit = Math.max(1, Math.min(100, pagination?.limit ?? 12));
@@ -57,9 +86,10 @@ export class BrandService {
         ]);
 
         const totalPages = Math.max(1, Math.ceil(total / limit) || 1);
+        const dataWithCounts = await attachProductCounts(data, options);
 
         return {
-            data,
+            data: dataWithCounts,
             meta: {
                 page,
                 limit,
@@ -76,7 +106,8 @@ export class BrandService {
         if (!brand) {
             throw new NotFoundError(MESSAGES.BRAND.NOT_FOUND, 'BRAND_NOT_FOUND');
         }
-        return brand;
+        const [withCount] = await attachProductCounts([brand]);
+        return withCount ?? { ...brand, productCount: 0 };
     }
 
     async create(payload: {

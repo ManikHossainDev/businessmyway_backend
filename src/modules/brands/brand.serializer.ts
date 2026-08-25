@@ -32,6 +32,7 @@ export const serializeBrand = (brand: IBrandPopulated | null) => {
         description: brand.description,
         subtitles: brand.subtitles || [],
         category,
+        productCount: brand.productCount ?? 0,
         createdAt: brand.createdAt,
         updatedAt: brand.updatedAt,
     };

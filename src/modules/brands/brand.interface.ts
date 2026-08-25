@@ -18,4 +18,5 @@ export type IBrandPopulated = Omit<IBrand, 'category'> & {
     _id?: unknown;
     id?: string;
     category: (ICategory & { _id?: unknown; id?: string }) | Types.ObjectId;
+    productCount?: number;
 };

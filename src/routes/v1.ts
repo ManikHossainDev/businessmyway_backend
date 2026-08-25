@@ -16,7 +16,10 @@ import notificationRoutes from '@/modules/notification/notification.routes';
 import settingRoutes from '@/modules/settings/settings.routes';
 import categoryRoutes from '@/modules/category/category.routes';
 import brandRoutes from '@/modules/brands/brand.routes';
+import productRoutes from '@/modules/products/product.routes';
 import subscriberRoutes from '@/modules/subscribers/subscriber.routes';
+import wishlistRoutes from '@/modules/wishlist/wishlist.routes';
+import cartRoutes from '@/modules/cart/cart.routes';
 import adminRoutes from '@/modules/admin/admin.routes';
 import devRoutes from '@/modules/dev/dev.routes';
 
@@ -80,7 +83,10 @@ router.use('/notifications', notificationRoutes);
 router.use('/settings', settingRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/brands', brandRoutes);
+router.use('/products', productRoutes);
 router.use('/subscribers', subscriberRoutes);
+router.use('/wishlist', wishlistRoutes);
+router.use('/cart', cartRoutes);
 router.use('/admin', adminRoutes);
 router.use('/dev', devRoutes);
 
