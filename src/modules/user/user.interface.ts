@@ -2,6 +2,17 @@ import type { Document } from 'mongoose';
 import type { Role } from '@/core/constants/roles';
 import type { AuthStrategy, UserStatus, OnboardingStep } from './user.constants';
 
+export interface ISavedAddress {
+    id?: string;
+    _id?: unknown;
+    label: string;
+    houseNumber: string;
+    area: string;
+    location: string;
+    postcode?: string;
+    isDefault: boolean;
+}
+
 export interface IUser {
     name: string;
     email: string;
@@ -10,6 +21,7 @@ export interface IUser {
     password: string;
     avatar?: string;
     address?: string;
+    savedAddresses?: ISavedAddress[];
     dateOfBirth?: Date;
     role: Role;
     status: UserStatus;

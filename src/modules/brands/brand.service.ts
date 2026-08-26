@@ -57,11 +57,15 @@ export class BrandService {
     async list(
         categoryName?: string,
         pagination?: OffsetPaginationParams,
-        options?: { activeOnly?: boolean },
+        options?: { activeOnly?: boolean; title?: string },
     ): Promise<OffsetPaginationResult<IBrandPopulated>> {
         const page = Math.max(1, pagination?.page ?? 1);
         const limit = Math.max(1, Math.min(100, pagination?.limit ?? 12));
-        const filter: { category?: Types.ObjectId } = {};
+        const filter: { category?: Types.ObjectId; title?: { $regex: string; $options: string } } = {};
+
+        if (options?.title) {
+            filter.title = { $regex: escapeRegex(options.title), $options: 'i' };
+        }
 
         if (categoryName) {
             const category = await CategoryModel.findOne({

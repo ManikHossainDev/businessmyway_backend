@@ -79,4 +79,50 @@ const deleteMe: RequestHandler = catchAsync(async (req, res) => {
     });
 });
 
-export const userController = { getMe, updateMe, getById, listUsers, deleteMe };
+const addAddress: RequestHandler = catchAsync(async (req, res) => {
+    const user = await userService.addAddress(req.user!.id, req.body);
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.CREATED,
+        message: MESSAGES.USER.ADDRESS_ADDED,
+        data: serializeUser(user),
+    });
+});
+
+const updateAddress: RequestHandler = catchAsync(async (req, res) => {
+    const user = await userService.updateAddress(req.user!.id, req.params.id as string, req.body);
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: MESSAGES.USER.ADDRESS_UPDATED,
+        data: serializeUser(user),
+    });
+});
+
+const removeAddress: RequestHandler = catchAsync(async (req, res) => {
+    const user = await userService.removeAddress(req.user!.id, req.params.id as string);
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: MESSAGES.USER.ADDRESS_REMOVED,
+        data: serializeUser(user),
+    });
+});
+
+const setDefaultAddress: RequestHandler = catchAsync(async (req, res) => {
+    const user = await userService.setDefaultAddress(req.user!.id, req.params.id as string);
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: MESSAGES.USER.ADDRESS_UPDATED,
+        data: serializeUser(user),
+    });
+});
+
+export const userController = {
+    getMe,
+    updateMe,
+    getById,
+    listUsers,
+    deleteMe,
+    addAddress,
+    updateAddress,
+    removeAddress,
+    setDefaultAddress,
+};

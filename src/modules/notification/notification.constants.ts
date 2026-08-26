@@ -8,6 +8,7 @@ export const NOTIFICATION_TYPES = {
     PROFILE_REJECTED: 'profile_rejected',
     ADMIN_NEW_USER: 'admin_new_user',
     ADMIN_NEW_CLAIM: 'admin_new_claim',
+    ADMIN_NEW_ORDER: 'admin_new_order',
     INFO: 'info',
 } as const;
 

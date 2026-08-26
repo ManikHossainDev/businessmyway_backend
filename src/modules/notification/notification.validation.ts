@@ -15,6 +15,7 @@ const notificationTypeValues = [
     NOTIFICATION_TYPES.PROFILE_REJECTED,
     NOTIFICATION_TYPES.ADMIN_NEW_USER,
     NOTIFICATION_TYPES.ADMIN_NEW_CLAIM,
+    NOTIFICATION_TYPES.ADMIN_NEW_ORDER,
 ] as const;
 
 export const createNotificationBodySchema = z.object({

@@ -50,4 +50,13 @@ const remove: RequestHandler = catchAsync(async (req, res) => {
     });
 });
 
-export const cartController = { list, add, update, remove };
+const clear: RequestHandler = catchAsync(async (req, res) => {
+    await cartService.clear(req.user!.id);
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: MESSAGES.CART.CLEARED,
+        data: [],
+    });
+});
+
+export const cartController = { list, add, update, remove, clear };

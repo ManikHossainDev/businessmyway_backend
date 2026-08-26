@@ -10,9 +10,11 @@ import type { CreateNotificationInput, INotificationDocument } from './notificat
 import { notificationRepository, type NotificationRepository } from './notification.repository';
 import type { OffsetPaginationParams, OffsetPaginationResult } from '@/core/types/pagination.types';
 import { sendMulticastPushNotifications } from '@/infrastructure/push-notification';
-import { emitNotificationCreated } from '@/infrastructure/realtime';
 import { UserModel } from '@/modules/user/user.model';
 import { logger } from '@/infrastructure/logger/winston.logger';
+import { emitNotificationCreated } from '@/infrastructure/realtime';
+import { serializeNotification } from './notification.serializer';
+import { ROLES } from '@/core/constants/roles';
 
 interface NotificationListFilters {
     isRead?: boolean;
@@ -70,6 +72,31 @@ export class NotificationService {
 
     async getUnreadCount(userId: string, options?: RepositoryQueryOptions): Promise<number> {
         return this.repository.countUnread(userId, options);
+    }
+
+    async notifyAdmins(payload: {
+        title: string;
+        message: string;
+        type?: CreateNotificationInput['type'];
+        metadata?: Record<string, unknown>;
+    }): Promise<void> {
+        const admins = await UserModel.find({
+            role: ROLES.SUPER_ADMIN,
+            isDeleted: false,
+        })
+            .select('_id')
+            .lean();
+
+        for (const admin of admins) {
+            const notification = await this.createNotification({
+                userId: String(admin._id),
+                title: payload.title,
+                message: payload.message,
+                type: payload.type ?? NOTIFICATION_TYPES.INFO,
+                metadata: payload.metadata,
+            });
+            emitNotificationCreated(String(admin._id), serializeNotification(notification));
+        }
     }
 
     async broadcastPushNotification(

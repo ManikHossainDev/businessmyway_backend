@@ -11,6 +11,19 @@ export interface CreateCheckoutSessionInput {
     amount: number;
 }
 
+export interface CreateOrderCheckoutSessionInput {
+    userId: string;
+    orderId: string;
+    customerEmail: string;
+    successUrl: string;
+    cancelUrl: string;
+    lineItems: Array<{
+        name: string;
+        unitAmount: number;
+        quantity: number;
+    }>;
+}
+
 export class StripeService {
     async createCheckoutSession(input: CreateCheckoutSessionInput): Promise<Stripe.Checkout.Session> {
         return stripe.checkout.sessions.create({
@@ -34,6 +47,34 @@ export class StripeService {
             success_url: `${config.serverBaseUrl}/payment/success?paymentId=${input.paymentId}&session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${config.serverBaseUrl}/payment/cancel?paymentId=${input.paymentId}`,
         });
+    }
+
+    async createOrderCheckoutSession(
+        input: CreateOrderCheckoutSessionInput,
+    ): Promise<Stripe.Checkout.Session> {
+        return stripe.checkout.sessions.create({
+            mode: 'payment',
+            payment_method_types: ['card'],
+            customer_email: input.customerEmail,
+            line_items: input.lineItems.map((item) => ({
+                price_data: {
+                    currency: 'gbp',
+                    product_data: { name: item.name },
+                    unit_amount: Math.round(item.unitAmount * 100),
+                },
+                quantity: item.quantity,
+            })),
+            metadata: {
+                userId: input.userId,
+                orderId: input.orderId,
+            },
+            success_url: input.successUrl,
+            cancel_url: input.cancelUrl,
+        });
+    }
+
+    async retrieveCheckoutSession(sessionId: string): Promise<Stripe.Checkout.Session> {
+        return stripe.checkout.sessions.retrieve(sessionId);
     }
 
     verifyWebhookSignature(payload: Buffer, signature: string): Stripe.Event {

@@ -18,8 +18,11 @@ import categoryRoutes from '@/modules/category/category.routes';
 import brandRoutes from '@/modules/brands/brand.routes';
 import productRoutes from '@/modules/products/product.routes';
 import subscriberRoutes from '@/modules/subscribers/subscriber.routes';
+import reviewRoutes from '@/modules/reviews/review.routes';
 import wishlistRoutes from '@/modules/wishlist/wishlist.routes';
 import cartRoutes from '@/modules/cart/cart.routes';
+import orderRoutes from '@/modules/orders/order.routes';
+import { orderController } from '@/modules/orders/order.controller';
 import adminRoutes from '@/modules/admin/admin.routes';
 import devRoutes from '@/modules/dev/dev.routes';
 
@@ -85,8 +88,11 @@ router.use('/categories', categoryRoutes);
 router.use('/brands', brandRoutes);
 router.use('/products', productRoutes);
 router.use('/subscribers', subscriberRoutes);
+router.use('/reviews', reviewRoutes);
 router.use('/wishlist', wishlistRoutes);
 router.use('/cart', cartRoutes);
+router.post('/stripe/webhook', orderController.stripeWebhook);
+router.use('/orders', orderRoutes);
 router.use('/admin', adminRoutes);
 router.use('/dev', devRoutes);
 

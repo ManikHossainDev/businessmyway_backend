@@ -80,6 +80,19 @@ const userSchema = new Schema<IUserDocument>(
             type: String,
             trim: true,
         },
+        savedAddresses: {
+            type: [
+                {
+                    label: { type: String, trim: true, required: true, maxlength: 40 },
+                    houseNumber: { type: String, trim: true, required: true, maxlength: 40 },
+                    area: { type: String, trim: true, required: true, maxlength: 120 },
+                    location: { type: String, trim: true, required: true, maxlength: 300 },
+                    postcode: { type: String, trim: true, default: '', maxlength: 20 },
+                    isDefault: { type: Boolean, default: false },
+                },
+            ],
+            default: [],
+        },
         dateOfBirth: {
             type: Date,
         },

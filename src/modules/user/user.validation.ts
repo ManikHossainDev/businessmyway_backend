@@ -17,6 +17,19 @@ export const completeProfileBodySchema = z.object({
     address: z.string().trim().min(1, 'Address is required'),
 });
 
+export const savedAddressBodySchema = z.object({
+    label: z.string().trim().min(1).max(40),
+    houseNumber: z.string().trim().min(1).max(40),
+    area: z.string().trim().min(1).max(120),
+    location: z.string().trim().min(4).max(300),
+    postcode: z.string().trim().max(20).optional().default(''),
+    isDefault: z.coerce.boolean().optional().default(false),
+});
+
+export const savedAddressIdParamSchema = z.object({
+    id: z.string().trim().min(1, 'Address id is required'),
+});
+
 export const listUsersQuerySchema = z.object({
     page: z.coerce.number().int().min(1).optional(),
     limit: z.coerce.number().int().min(1).max(100).optional(),
@@ -31,3 +44,4 @@ export const listUsersQuerySchema = z.object({
 export type UpdateProfileBody = z.infer<typeof updateProfileBodySchema>;
 export type CompleteProfileBody = z.infer<typeof completeProfileBodySchema>;
 export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
+export type SavedAddressBody = z.infer<typeof savedAddressBodySchema>;

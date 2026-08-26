@@ -13,6 +13,7 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/', cartController.list);
+router.delete('/', cartController.clear);
 router.post('/', validate({ body: addCartBodySchema }), cartController.add);
 router.patch(
     '/:productId',

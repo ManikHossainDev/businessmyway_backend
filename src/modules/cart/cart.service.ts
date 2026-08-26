@@ -82,6 +82,10 @@ export class CartService {
             throw new NotFoundError(MESSAGES.CART.NOT_FOUND, 'CART_NOT_FOUND');
         }
     }
+
+    async clear(userId: string) {
+        await CartModel.deleteMany({ user: userId });
+    }
 }
 
 export const cartService = new CartService();

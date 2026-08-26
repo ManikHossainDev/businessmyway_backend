@@ -17,6 +17,7 @@
         "seed:admin": "ts-node -r tsconfig-paths/register ./src/seeds/superAdmin.seed.ts",
         "seed:settings": "ts-node -r tsconfig-paths/register ./src/seeds/settings.seed.ts",
         "seed:products": "ts-node -r tsconfig-paths/register ./src/seeds/product.seed.ts",
+        "seed:reviews": "ts-node -r tsconfig-paths/register ./src/seeds/review.seed.ts",
         "fix:brands": "ts-node -r tsconfig-paths/register ./src/seeds/fixBrandCategories.seed.ts",
         "seed:all": "npm run seed:admin && npm run seed:plans && npm run seed:settings",
         "setup:https:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-local-https.ps1",
