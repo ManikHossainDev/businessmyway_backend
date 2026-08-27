@@ -79,8 +79,10 @@ export const MESSAGES = {
         FETCHED: 'Categories fetched successfully.',
         CREATED: 'Category created successfully.',
         UPDATED: 'Category updated successfully.',
+        DELETED: 'Category deleted successfully.',
         NOT_FOUND: 'Category not found.',
         ALREADY_EXISTS: 'A category with this name already exists.',
+        LOCKED: 'Cigarettes, Cigars, Tobacco and Accessories cannot be edited or deleted.',
     },
     BRAND: {
         FETCHED: 'Brands fetched successfully.',

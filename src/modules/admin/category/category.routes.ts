@@ -12,5 +12,10 @@ router.put(
     validate({ params: categoryIdParamSchema, body: createCategoryBodySchema }),
     adminCategoryController.update,
 );
+router.delete(
+    '/:id',
+    validate({ params: categoryIdParamSchema }),
+    adminCategoryController.remove,
+);
 
 export default router;
