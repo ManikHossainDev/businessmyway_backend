@@ -31,6 +31,12 @@ const reviewSchema = new Schema<IReviewDocument>(
             maxlength: 40,
             default: 'Verified Buyer',
         },
+        product: {
+            type: Schema.Types.ObjectId,
+            ref: 'Product',
+            required: false,
+            index: true,
+        },
         user: {
             type: Schema.Types.ObjectId,
             ref: 'User',
@@ -47,6 +53,16 @@ const reviewSchema = new Schema<IReviewDocument>(
 );
 
 reviewSchema.index({ createdAt: -1 });
+reviewSchema.index(
+    { user: 1, product: 1 },
+    {
+        unique: true,
+        partialFilterExpression: {
+            user: { $type: 'objectId' },
+            product: { $type: 'objectId' },
+        },
+    },
+);
 reviewSchema.plugin(toJSONPlugin);
 
 export const ReviewModel = mongoose.model<IReviewDocument>('Review', reviewSchema);

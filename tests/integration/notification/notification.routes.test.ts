@@ -66,7 +66,7 @@ describe('Notification routes', () => {
             }),
         );
 
-        const accessToken = buildAccessToken({ role: ROLES.ADMIN });
+        const accessToken = buildAccessToken({ role: ROLES.SUPER_ADMIN });
         const response = await request(app)
             .post('/api/v1/notifications')
             .set('authorization', `Bearer ${accessToken}`)

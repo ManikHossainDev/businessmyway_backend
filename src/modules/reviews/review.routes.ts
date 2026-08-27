@@ -4,11 +4,16 @@ import { authenticate } from '@/shared/middlewares/authenticate';
 import { authorize } from '@/shared/middlewares/authorize';
 import { ROLES } from '@/core/constants/roles';
 import { reviewController } from './review.controller';
-import { createReviewBodySchema } from './review.validation';
+import { createReviewBodySchema, productIdParamSchema } from './review.validation';
 
 const router = Router();
 
 router.get('/', reviewController.list);
+router.get(
+    '/product/:productId',
+    validate({ params: productIdParamSchema }),
+    reviewController.listByProduct,
+);
 router.post(
     '/',
     authenticate,

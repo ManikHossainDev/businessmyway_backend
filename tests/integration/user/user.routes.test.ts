@@ -55,7 +55,7 @@ describe('User routes', () => {
             },
         });
         const accessToken = buildAccessToken({
-            role: ROLES.ADMIN,
+            role: ROLES.SUPER_ADMIN,
         });
 
         const response = await request(app)

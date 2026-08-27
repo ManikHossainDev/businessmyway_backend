@@ -170,8 +170,9 @@ export class UserService {
         if (!address) throw new NotFoundError(MESSAGES.USER.ADDRESS_NOT_FOUND, 'USER_ADDRESS_NOT_FOUND');
 
         const next = current.filter((item) => String(item._id) !== addressId);
-        if (address.isDefault && next.length) {
-            next[0].isDefault = true;
+        const firstRemaining = next[0];
+        if (address.isDefault && firstRemaining) {
+            firstRemaining.isDefault = true;
         }
         user.savedAddresses = next;
         await user.save();

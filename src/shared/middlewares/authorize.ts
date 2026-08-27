@@ -1,6 +1,7 @@
 import type { RequestHandler } from 'express';
 
 import { ForbiddenError, UnauthorizedError } from '@/core/errors';
+import { ROLES } from '@/core/constants/roles';
 
 export const authorize = (...allowedRoles: string[]): RequestHandler => {
     return (req, _res, next): void => {
@@ -16,6 +17,22 @@ export const authorize = (...allowedRoles: string[]): RequestHandler => {
                     'AUTH_FORBIDDEN',
                 ),
             );
+            return;
+        }
+
+        next();
+    };
+};
+
+export const requireCustomer = (message: string): RequestHandler => {
+    return (req, _res, next): void => {
+        if (!req.user) {
+            next(new UnauthorizedError('Authentication required.', 'AUTH_REQUIRED'));
+            return;
+        }
+
+        if (req.user.role !== ROLES.USER) {
+            next(new ForbiddenError(message, 'CUSTOMER_ONLY'));
             return;
         }
 

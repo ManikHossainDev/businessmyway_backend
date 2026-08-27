@@ -5,6 +5,7 @@ export interface IReview {
     text: string;
     rating: number;
     tag: string;
+    product?: Types.ObjectId;
     user?: Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;

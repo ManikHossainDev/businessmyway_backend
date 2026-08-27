@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { validate } from '@/shared/middlewares/validate';
 import { authenticate } from '@/shared/middlewares/authenticate';
+import { requireCustomer } from '@/shared/middlewares/authorize';
+import { MESSAGES } from '@/core/constants/messages';
 import { cartController } from './cart.controller';
 import {
     addCartBodySchema,
@@ -10,7 +12,7 @@ import {
 
 const router = Router();
 
-router.use(authenticate);
+router.use(authenticate, requireCustomer(MESSAGES.CART.USER_ONLY));
 
 router.get('/', cartController.list);
 router.delete('/', cartController.clear);

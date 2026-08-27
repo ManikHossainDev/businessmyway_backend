@@ -10,11 +10,13 @@ import userRoutes from './users/user.routes';
 import productRoutes from './products/product.routes';
 import orderRoutes from './orders/order.routes';
 import reviewRoutes from './reviews/review.routes';
+import dashboardRoutes from './dashboard/dashboard.routes';
 
 const router = Router();
 
 router.use(authenticate, authorize('superAdmin'));
 
+router.use('/dashboard', dashboardRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/brands', brandRoutes);

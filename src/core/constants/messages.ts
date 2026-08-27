@@ -116,6 +116,7 @@ export const MESSAGES = {
         NOT_FOUND: 'Cart item not found.',
         OUT_OF_STOCK: 'Not enough stock for this product.',
         EMPTY: 'Your cart is empty.',
+        USER_ONLY: 'Only customers can add items to the cart.',
     },
     ORDER: {
         CREATED: 'Order created successfully.',
@@ -123,8 +124,12 @@ export const MESSAGES = {
         LIST_FETCHED: 'Orders fetched successfully.',
         NOT_FOUND: 'Order not found.',
         EMPTY_CART: 'Add items to your cart before checking out.',
+        USER_ONLY: 'Only customers can place orders.',
         PAYMENT_PENDING: 'Payment is not complete yet.',
         PAID: 'Payment confirmed successfully.',
+    },
+    DASHBOARD: {
+        FETCHED: 'Dashboard stats fetched successfully.',
     },
     REVIEW: {
         FETCHED: 'Reviews fetched successfully.',
@@ -132,6 +137,7 @@ export const MESSAGES = {
         USER_ONLY: 'Only customers can submit reviews.',
         DELETED: 'Review deleted successfully.',
         NOT_FOUND: 'Review not found.',
+        ALREADY_EXISTS: 'You have already reviewed this product.',
     },
     SUBSCRIBER: {
         FETCHED: 'Subscribers fetched successfully.',
