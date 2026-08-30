@@ -70,23 +70,6 @@ const LOCK_DURATION = config.auth.lockDurationMinutes * 60 * 1000;
 const isUserLocked = (user: IUserDocument): boolean =>
     !!(user.lockUntil && new Date(user.lockUntil) > new Date());
 
-const incrementFailedAttempts = async (user: IUserDocument, options?: RepositoryWriteOptions) => {
-    const failedAttempts = (user.failedLoginAttempts || 0) + 1;
-    let lockUntil = user.lockUntil;
-    if (failedAttempts >= MAX_FAILED_ATTEMPTS && !isUserLocked(user)) {
-        lockUntil = new Date(Date.now() + LOCK_DURATION);
-    }
-    await userRepository.updateById(
-        user.id,
-        { failedLoginAttempts: failedAttempts, lockUntil },
-        options,
-    );
-};
-
-const resetFailedAttempts = async (user: IUserDocument, options?: RepositoryWriteOptions) => {
-    await userRepository.updateById(user.id, { failedLoginAttempts: 0, lockUntil: null }, options);
-};
-
 const toUserId = (user: IUserDocument): string => user.id ?? String((user as any)._id ?? '');
 
 export class AuthService {
@@ -95,6 +78,23 @@ export class AuthService {
         private readonly tokens: TokenService = tokenService,
         private readonly userDomainService: UserService = userService,
     ) {}
+
+    private async incrementFailedAttempts(user: IUserDocument, options?: RepositoryWriteOptions) {
+        const failedAttempts = (user.failedLoginAttempts || 0) + 1;
+        let lockUntil = user.lockUntil;
+        if (failedAttempts >= MAX_FAILED_ATTEMPTS && !isUserLocked(user)) {
+            lockUntil = new Date(Date.now() + LOCK_DURATION);
+        }
+        await this.users.updateById(
+            user.id,
+            { failedLoginAttempts: failedAttempts, lockUntil },
+            options,
+        );
+    }
+
+    private async resetFailedAttempts(user: IUserDocument, options?: RepositoryWriteOptions) {
+        await this.users.updateById(user.id, { failedLoginAttempts: 0, lockUntil: null }, options);
+    }
 
     private getRegistrationStrategy(user: IUserDocument): AuthStrategy {
         return user.registrationStrategy ?? AUTH_STRATEGIES.LOCAL;
@@ -284,11 +284,11 @@ export class AuthService {
             });
         }
 
-        if (user.onboardingStep === ONBOARDING_STEPS.APPROVED || user.isOnboardingCompleted) return;
-
-        if (user.identityDocument) {
-            throw new ForbiddenError(MESSAGES.AUTH.ACCOUNT_UNDER_REVIEW, 'ACCOUNT_UNDER_REVIEW');
+        if (user.onboardingStep === ONBOARDING_STEPS.APPROVED && user.isOnboardingCompleted) {
+            return;
         }
+
+        throw new ForbiddenError(MESSAGES.AUTH.ACCOUNT_UNDER_REVIEW, 'ACCOUNT_UNDER_REVIEW');
     }
 
     private assertEmailVerified = async (user: IUserDocument, options?: RepositoryWriteOptions) => {
@@ -507,13 +507,13 @@ export class AuthService {
 
         const matched = await compareHash(payload.password, user.password);
         if (!matched) {
-            await incrementFailedAttempts(user, options);
+            await this.incrementFailedAttempts(user, options);
             throw new UnauthorizedError(MESSAGES.AUTH.INVALID_CREDENTIALS);
         }
 
         this.assertUserCanAuthenticate(user, AUTH_STRATEGIES.LOCAL);
         await this.assertUserIsApproved(user);
-        await resetFailedAttempts(user, options);
+        await this.resetFailedAttempts(user, options);
 
         if (payload.notificationToken || payload.deviceType) {
             const updateData: Partial<IUserDocument> = {};
@@ -611,7 +611,7 @@ export class AuthService {
         const user = await this.users.findByEmail(payload.email, options);
         if (!user) throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
         if (isUserLocked(user)) throw new TooManyRequestsError(MESSAGES.AUTH.TOO_MANY_ATTEMPTS);
-        await resetFailedAttempts(user, options);
+        await this.resetFailedAttempts(user, options);
 
         const { otp: resetCode, expiresAt } = getUniqueOtpCode({
             expiresInMinutes: config.auth.otpExpiresMinutes,
@@ -673,7 +673,7 @@ export class AuthService {
             options,
         );
         if (!valid) {
-            await incrementFailedAttempts(user, options);
+            await this.incrementFailedAttempts(user, options);
             throw new BadRequestError(MESSAGES.AUTH.INVALID_TOKEN);
         }
 
@@ -729,7 +729,7 @@ export class AuthService {
         if (user.isEmailVerified) throw new BadRequestError(MESSAGES.AUTH.EMAIL_ALREADY_VERIFIED);
 
         if (isUserLocked(user)) throw new TooManyRequestsError(MESSAGES.AUTH.TOO_MANY_ATTEMPTS);
-        await incrementFailedAttempts(user, options);
+        await this.incrementFailedAttempts(user, options);
 
         const { otp, expiresAt } = getUniqueOtpCode({
             expiresInMinutes: config.auth.otpExpiresMinutes,
@@ -767,7 +767,7 @@ export class AuthService {
             options,
         );
         if (!valid) {
-            await incrementFailedAttempts(user, options);
+            await this.incrementFailedAttempts(user, options);
             throw new BadRequestError(MESSAGES.AUTH.INVALID_TOKEN);
         }
 

@@ -4,7 +4,7 @@ export const MESSAGES = {
         LOGIN_SUCCESS: 'Login successful.',
         LOGOUT_SUCCESS: 'Logged out successfully.',
         TOKEN_REFRESHED: 'Tokens refreshed successfully.',
-        EMAIL_VERIFIED: 'Email verified successfully. Your account is pending admin approval.',
+        EMAIL_VERIFIED: 'Email verified successfully. Your account is pending admin verification before you can log in.',
         PASSWORD_RESET_SENT: 'If that email exists, a reset code has been sent.',
         PASSWORD_RESET_SUCCESS: 'Password has been reset successfully.',
         PASSWORD_CHANGED: 'Password changed successfully.',
@@ -23,7 +23,7 @@ export const MESSAGES = {
         PROFILE_ONBOARDING_ALREADY_COMPLETE: 'Profile onboarding already completed.',
         PROFILE_ONBOARDING_COMPLETE: 'Profile onboarding completed.',
         PROFILE_NOT_COMPLETED: 'Please complete your profile before logging in.',
-        ACCOUNT_UNDER_REVIEW: 'Your account is pending admin approval. You will be notified once approved.',
+        ACCOUNT_UNDER_REVIEW: 'Your account is currently pending admin verification. You cannot log in until your identity is approved.',
     },
     USER: {
         FETCHED: 'User fetched successfully.',

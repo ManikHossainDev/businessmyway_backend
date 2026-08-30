@@ -75,7 +75,12 @@ describe('AuthService', () => {
         const tokenService = createTokenServiceMock();
         const userDomainService = createUserDomainServiceMock();
 
-        (userRepository.findByEmail as jest.Mock).mockResolvedValue(null);
+        (userRepository.findByEmail as jest.Mock).mockResolvedValue(
+            buildUser({
+                password: 'hashed',
+            }),
+        );
+        jest.spyOn(hashUtils, 'compareHash').mockResolvedValue(false);
 
         const service = new AuthService(
             userRepository as UserRepository,
@@ -209,6 +214,74 @@ describe('AuthService', () => {
                 password: 'Password@123',
             }),
         ).rejects.toBeInstanceOf(UnauthorizedError);
+    });
+
+    it('blocks login with ACCOUNT_UNDER_REVIEW if user is verified but not admin-approved', async () => {
+        const userRepository = createUserRepositoryMock();
+        const tokenService = createTokenServiceMock();
+        const userDomainService = createUserDomainServiceMock();
+
+        (userRepository.findByEmail as jest.Mock).mockResolvedValue(
+            buildUser({
+                password: 'hashed',
+                isEmailVerified: true,
+                onboardingStep: 'UNDER_REVIEW' as any,
+                isOnboardingCompleted: false,
+                role: ROLES.USER,
+            }),
+        );
+        jest.spyOn(hashUtils, 'compareHash').mockResolvedValue(true);
+
+        const service = new AuthService(
+            userRepository as UserRepository,
+            tokenService as TokenService,
+            userDomainService as UserService,
+        );
+
+        await expect(
+            service.login({
+                email: 'alice@example.com',
+                password: 'Password@123',
+            }),
+        ).rejects.toMatchObject({
+            statusCode: 403,
+            errorCode: 'ACCOUNT_UNDER_REVIEW',
+            message:
+                'Your account is currently pending admin verification. You cannot log in until your identity is approved.',
+        });
+    });
+
+    it('allows login when user is admin-approved', async () => {
+        const userRepository = createUserRepositoryMock();
+        const tokenService = createTokenServiceMock();
+        const userDomainService = createUserDomainServiceMock();
+
+        const approvedUser = buildUser({
+            password: 'hashed',
+            isEmailVerified: true,
+            onboardingStep: 'APPROVED' as any,
+            isOnboardingCompleted: true,
+            role: ROLES.USER,
+        });
+
+        (userRepository.findByEmail as jest.Mock).mockResolvedValue(approvedUser);
+        (userRepository.updateById as jest.Mock).mockResolvedValue(approvedUser);
+        (tokenService.createToken as jest.Mock).mockResolvedValue({} as never);
+        jest.spyOn(hashUtils, 'compareHash').mockResolvedValue(true);
+
+        const service = new AuthService(
+            userRepository as UserRepository,
+            tokenService as TokenService,
+            userDomainService as UserService,
+        );
+
+        const result = await service.login({
+            email: 'alice@example.com',
+            password: 'Password@123',
+        });
+
+        expect(result.user.email).toBe(approvedUser.email);
+        expect(result.tokens.accessToken).toBeDefined();
     });
 });
 
