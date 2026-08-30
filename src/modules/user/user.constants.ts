@@ -21,6 +21,14 @@ export const USER_DEFAULTS = {
     IS_DELETED: false,
 } as const;
 
+export const IDENTITY_DOCUMENT_TYPES = {
+    NID: 'nid',
+    DRIVING_LICENSE: 'driving_license',
+} as const;
+
+export type IdentityDocumentType =
+    (typeof IDENTITY_DOCUMENT_TYPES)[keyof typeof IDENTITY_DOCUMENT_TYPES];
+
 export const ONBOARDING_STEPS = {
     REGISTERED: 'REGISTERED',
     VERIFIED: 'VERIFIED',

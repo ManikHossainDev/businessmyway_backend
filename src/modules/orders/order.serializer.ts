@@ -4,7 +4,7 @@ export const serializeOrder = (order: IOrderDocument) => ({
     id: order.id || String(order._id),
     orderNumber: order.orderNumber,
     status: order.status,
-    deliveryType: order.deliveryType || 'in_delivery',
+    deliveryType: order.deliveryType || 'paid_delivery',
     deliveryFee: order.deliveryFee ?? 0,
     subtotal: order.subtotal,
     total: order.total ?? order.subtotal,

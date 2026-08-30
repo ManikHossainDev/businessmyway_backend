@@ -12,11 +12,12 @@ import type {
     RepositoryWriteOptions,
 } from '@/core/interfaces/repository.interface';
 import { MESSAGES } from '@/core/constants/messages';
-import { ConflictError, NotFoundError } from '@/core/errors';
+import { BadRequestError, ConflictError, NotFoundError } from '@/core/errors';
 import { userRepository, type UserRepository } from './user.repository';
 import type { OffsetPaginationParams, OffsetPaginationResult } from '@/core/types/pagination.types';
 import { UserModel } from './user.model';
 import type { SavedAddressBody } from './user.validation';
+import { eventBus } from '@/infrastructure/events/event-bus';
 
 const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -47,6 +48,8 @@ export class UserService {
                 termsAcceptedAt: payload.termsAcceptedAt ?? new Date(),
                 phone: payload.phone || '',
                 avatar: payload.avatar || '',
+                identityDocument: payload.identityDocument || '',
+                identityDocumentType: payload.identityDocumentType || 'nid',
                 dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : undefined,
                 expiresAt: payload.expiresAt,
             } as Partial<IUserDocument>,
@@ -191,6 +194,34 @@ export class UserService {
         });
         await user.save();
         return user;
+    }
+
+    async approveUser(id: string, options?: RepositoryWriteOptions): Promise<IUserDocument> {
+        const user = await this.getById(id, options);
+        if (user.role === ROLES.SUPER_ADMIN) {
+            throw new BadRequestError('Admin accounts do not require approval.', 'ADMIN_APPROVAL_NOT_ALLOWED');
+        }
+        if (user.onboardingStep === ONBOARDING_STEPS.APPROVED && user.isOnboardingCompleted) {
+            throw new BadRequestError(MESSAGES.USER.ALREADY_APPROVED, 'USER_ALREADY_APPROVED');
+        }
+
+        const updated = await this.updateById(
+            id,
+            {
+                onboardingStep: ONBOARDING_STEPS.APPROVED,
+                isOnboardingCompleted: true,
+                rejectionReason: null,
+            },
+            options,
+        );
+
+        eventBus.emit('user:profile-approved', {
+            userId: updated.id || String(updated._id),
+            email: updated.email,
+            name: updated.name,
+        });
+
+        return updated;
     }
 }
 

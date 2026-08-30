@@ -18,6 +18,7 @@ export const getFileExtension = (mimetype: string): string => {
         'image/tiff': '.tiff',
         'image/heic': '.heic',
         'image/heif': '.heif',
+        'application/pdf': '.pdf',
         // Videos
         'video/mp4': '.mp4',
         'video/quicktime': '.mov',
@@ -68,11 +69,15 @@ export const multerUpload = multer({
         files: 16,
     },
     fileFilter: (_req: Request, file: Express.Multer.File, callback: multer.FileFilterCallback) => {
-        if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+        if (
+            file.mimetype.startsWith('image/') ||
+            file.mimetype.startsWith('video/') ||
+            file.mimetype === 'application/pdf'
+        ) {
             callback(null, true);
             return;
         }
-        callback(new Error('Unsupported file type. Only image and video files are allowed.'));
+        callback(new Error('Unsupported file type. Only image, video, and PDF files are allowed.'));
     },
 });
 

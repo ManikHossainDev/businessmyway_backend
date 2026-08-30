@@ -19,22 +19,25 @@ const getCurrentUserId = (userId?: string): string => {
     return userId;
 };
 
+const storeUploadedFile = async (file: Express.Multer.File, folder: string): Promise<string> => {
+    if (config.storage.mode === 's3') {
+        const result = await s3StorageService.upload(
+            file.buffer || require('fs').readFileSync(file.path),
+            folder,
+        );
+        return result.url;
+    }
+    const subDir = path.relative(UPLOAD_DIRECTORY, file.destination).replace(/\\/g, '/');
+    return getFileUrl(file.filename, subDir);
+};
+
 const register: RequestHandler = catchAsync(async (req, res) => {
     const body = { ...req.body };
-
-    // Handle avatar file upload if present
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-    const avatarFiles = files?.avatar;
-    if (avatarFiles && avatarFiles.length > 0) {
-        const file = avatarFiles[0]!;
-        if (config.storage.mode === 's3') {
-            const result = await s3StorageService.upload(file.buffer || require('fs').readFileSync(file.path), 'avatars');
-            body.avatar = result.url;
-        } else {
-            const subDir = path.relative(UPLOAD_DIRECTORY, file.destination);
-            body.avatar = getFileUrl(file.filename, subDir);
-        }
+    const identityFile = req.file;
+    if (!identityFile) {
+        throw new BadRequestError(MESSAGES.USER.IDENTITY_DOCUMENT_REQUIRED, 'IDENTITY_DOCUMENT_REQUIRED');
     }
+    body.identityDocument = await storeUploadedFile(identityFile, 'identity-documents');
 
     const result = await authService.register(body);
     sendResponse(res, {

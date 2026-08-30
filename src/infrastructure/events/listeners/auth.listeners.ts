@@ -18,6 +18,7 @@ interface UserPayload {
     userId: string;
     email: string;
     name: string;
+    identityDocumentType?: string;
 }
 
 const otpStore: Map<string, { otp: string; expiresAt: Date }> = new Map();
@@ -134,5 +135,19 @@ export const registerAuthListeners = (bus: IEventBus): void => {
 
     bus.on<UserPayload>('user:registered', async (payload) => {
         logger.info('User registered', { email: payload.email, name: payload.name, userId: payload.userId });
+        try {
+            await notificationService.notifyAdmins({
+                title: 'New account created',
+                message: `${payload.name} registered and uploaded an ID document for approval.`,
+                type: NOTIFICATION_TYPES.ADMIN_NEW_USER,
+                metadata: {
+                    userId: payload.userId,
+                    email: payload.email,
+                    identityDocumentType: payload.identityDocumentType,
+                },
+            });
+        } catch (err) {
+            logger.error('Failed to notify admins of new user', { error: err });
+        }
     });
 };

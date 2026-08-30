@@ -115,6 +115,15 @@ const setDefaultAddress: RequestHandler = catchAsync(async (req, res) => {
     });
 });
 
+const approveUser: RequestHandler = catchAsync(async (req, res) => {
+    const user = await userService.approveUser(req.params.id as string);
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: MESSAGES.USER.APPROVED,
+        data: serializeUser(user),
+    });
+});
+
 export const userController = {
     getMe,
     updateMe,
@@ -125,4 +134,5 @@ export const userController = {
     updateAddress,
     removeAddress,
     setDefaultAddress,
+    approveUser,
 };

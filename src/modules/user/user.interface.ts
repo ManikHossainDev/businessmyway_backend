@@ -1,6 +1,6 @@
 import type { Document } from 'mongoose';
 import type { Role } from '@/core/constants/roles';
-import type { AuthStrategy, UserStatus, OnboardingStep } from './user.constants';
+import type { AuthStrategy, UserStatus, OnboardingStep, IdentityDocumentType } from './user.constants';
 
 export interface ISavedAddress {
     id?: string;
@@ -20,6 +20,8 @@ export interface IUser {
     countryCode: string;
     password: string;
     avatar?: string;
+    identityDocument?: string;
+    identityDocumentType?: IdentityDocumentType;
     address?: string;
     savedAddresses?: ISavedAddress[];
     dateOfBirth?: Date;
@@ -55,6 +57,8 @@ export interface CreateUserInput {
     password: string;
     phone?: string;
     avatar?: string;
+    identityDocument?: string;
+    identityDocumentType?: IdentityDocumentType;
     agreeTermsAndConditions: boolean;
     dateOfBirth?: string;
     registrationStrategy?: AuthStrategy;
@@ -76,6 +80,8 @@ export interface UpdateUserInput {
     countryCode?: string;
     password?: string;
     avatar?: string;
+    identityDocument?: string;
+    identityDocumentType?: IdentityDocumentType;
     address?: string;
     status?: UserStatus;
     role?: Role;

@@ -1,10 +1,10 @@
 export const MESSAGES = {
     AUTH: {
-        REGISTER_SUCCESS: 'Registration successful. Please verify your email.',
+        REGISTER_SUCCESS: 'Registration successful. Please verify your email. An admin will review your ID document before you can log in.',
         LOGIN_SUCCESS: 'Login successful.',
         LOGOUT_SUCCESS: 'Logged out successfully.',
         TOKEN_REFRESHED: 'Tokens refreshed successfully.',
-        EMAIL_VERIFIED: 'Email verified successfully.',
+        EMAIL_VERIFIED: 'Email verified successfully. Your account is pending admin approval.',
         PASSWORD_RESET_SENT: 'If that email exists, a reset code has been sent.',
         PASSWORD_RESET_SUCCESS: 'Password has been reset successfully.',
         PASSWORD_CHANGED: 'Password changed successfully.',
@@ -31,6 +31,9 @@ export const MESSAGES = {
         LIST_FETCHED: 'Users fetched successfully.',
         STATUS_CHANGED: 'User status updated successfully.',
         NOT_FOUND: 'User not found.',
+        APPROVED: 'User account approved successfully.',
+        ALREADY_APPROVED: 'This account is already approved.',
+        IDENTITY_DOCUMENT_REQUIRED: 'Please upload your NID or driving license.',
         DELETED: 'User deleted successfully.',
         PROFILE_COMPLETED: 'Profile completed successfully.',
         ADDRESS_ADDED: 'Address added successfully.',

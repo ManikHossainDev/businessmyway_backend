@@ -1,4 +1,4 @@
-import type { AuthStrategy, UserStatus, OnboardingStep } from '../user/user.constants';
+import type { AuthStrategy, UserStatus, OnboardingStep, IdentityDocumentType } from '../user/user.constants';
 
 export interface AuthUser {
     id: string;
@@ -44,6 +44,8 @@ export interface RegisterInput {
     password: string;
     phone?: string;
     avatar?: string;
+    identityDocument?: string;
+    identityDocumentType?: IdentityDocumentType;
     agreeTermsAndConditions: boolean;
     dateOfBirth: string;
 }

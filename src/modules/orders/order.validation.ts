@@ -9,7 +9,7 @@ export const checkoutBodySchema = z.object({
     phone: z.string().trim().min(6).max(24),
     email: z.string().trim().email().max(120),
     location: z.string().trim().min(5).max(400),
-    deliveryType: z.enum([DELIVERY_TYPES.IN_DELIVERY, DELIVERY_TYPES.PAID_DELIVERY]),
+    deliveryType: z.enum([DELIVERY_TYPES.PAID_DELIVERY]).optional().default(DELIVERY_TYPES.PAID_DELIVERY),
     origin: z.string().trim().url().max(200).optional(),
 });
 

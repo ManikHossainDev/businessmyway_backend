@@ -272,18 +272,23 @@ export class AuthService {
         user: IUserDocument,
         options?: RepositoryWriteOptions,
     ): Promise<void> {
-        switch (user.onboardingStep) {
-            case ONBOARDING_STEPS.REGISTERED:
-                await this.assertEmailVerified(user, options);
-                const verificationToken = this.createVerificationToken(user);
-                throw new AssertUserApi('OTP has been sent to your email.', 'EMAIL_NOT_VERIFIED', {
-                    userId: toUserId(user),
-                    email: user.email,
-                    verificationToken,
-                });
-            case ONBOARDING_STEPS.VERIFIED:
+        if (user.role === ROLES.SUPER_ADMIN) return;
+
+        if (!user.isEmailVerified || user.onboardingStep === ONBOARDING_STEPS.REGISTERED) {
+            await this.assertEmailVerified(user, options);
+            const verificationToken = this.createVerificationToken(user);
+            throw new AssertUserApi('OTP has been sent to your email.', 'EMAIL_NOT_VERIFIED', {
+                userId: toUserId(user),
+                email: user.email,
+                verificationToken,
+            });
         }
-        // APPROVED — allow through
+
+        if (user.onboardingStep === ONBOARDING_STEPS.APPROVED || user.isOnboardingCompleted) return;
+
+        if (user.identityDocument) {
+            throw new ForbiddenError(MESSAGES.AUTH.ACCOUNT_UNDER_REVIEW, 'ACCOUNT_UNDER_REVIEW');
+        }
     }
 
     private assertEmailVerified = async (user: IUserDocument, options?: RepositoryWriteOptions) => {
@@ -409,6 +414,8 @@ export class AuthService {
                 failedLoginAttempts: 0,
                 lockUntil: null,
                 avatar: payload.avatar || '',
+                identityDocument: payload.identityDocument || '',
+                identityDocumentType: payload.identityDocumentType || 'nid',
                 phone: payload.phone || '',
                 dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : undefined,
                 countryCode: '',
@@ -437,7 +444,12 @@ export class AuthService {
                 options,
             );
 
-            eventBus.emit('user:registered', { userId, email, name });
+            eventBus.emit('user:registered', {
+                userId,
+                email,
+                name,
+                identityDocumentType: payload.identityDocumentType,
+            });
             eventBus.emit('auth:otp-resend', { userId, email, name, otp, expiresAt });
         } else {
             const user = await this.userDomainService.createUser(
@@ -464,7 +476,12 @@ export class AuthService {
                 options,
             );
 
-            eventBus.emit('user:registered', { userId, email, name });
+            eventBus.emit('user:registered', {
+                userId,
+                email,
+                name,
+                identityDocumentType: payload.identityDocumentType,
+            });
             eventBus.emit('auth:otp-resend', { userId, email, name, otp, expiresAt });
         }
 
@@ -533,7 +550,8 @@ export class AuthService {
 
         const user = await this.upsertSocialUser(profile, strategy, options);
         if (user.isDeleted) throw new UnauthorizedError(MESSAGES.AUTH.ACCOUNT_DELETED);
-        this.assertUserIsApproved(user);
+        this.assertUserCanAuthenticate(user, strategy);
+        await this.assertUserIsApproved(user);
 
         if (payload.notificationToken || payload.deviceType) {
             const updateData: Partial<IUserDocument> = {};
@@ -755,7 +773,13 @@ export class AuthService {
 
         const updatedUser = await this.users.updateById(
             toUserId(user),
-            { isEmailVerified: true, onboardingStep: ONBOARDING_STEPS.VERIFIED, expiresAt: null },
+            {
+                isEmailVerified: true,
+                onboardingStep: user.identityDocument
+                    ? ONBOARDING_STEPS.UNDER_REVIEW
+                    : ONBOARDING_STEPS.VERIFIED,
+                expiresAt: null,
+            },
             options,
         );
 

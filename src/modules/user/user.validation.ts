@@ -30,6 +30,10 @@ export const savedAddressIdParamSchema = z.object({
     id: z.string().trim().min(1, 'Address id is required'),
 });
 
+export const userIdParamSchema = z.object({
+    id: z.string().trim().min(1, 'User id is required'),
+});
+
 export const listUsersQuerySchema = z.object({
     page: z.coerce.number().int().min(1).optional(),
     limit: z.coerce.number().int().min(1).max(100).optional(),

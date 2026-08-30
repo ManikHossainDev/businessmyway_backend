@@ -6,7 +6,7 @@ import { stripeService } from '@/infrastructure/stripe/stripe.service';
 import { BadRequestError, ForbiddenError, NotFoundError } from '@/core/errors';
 import { MESSAGES } from '@/core/constants/messages';
 import { OrderModel } from './order.model';
-import { ORDER_STATUS, DELIVERY_TYPES, IN_DELIVERY_FEE, PAID_DELIVERY_FEE, type IOrderDocument } from './order.interface';
+import { ORDER_STATUS, DELIVERY_TYPES, PAID_DELIVERY_FEE, type IOrderDocument } from './order.interface';
 import type { CheckoutBody } from './order.validation';
 import { notificationService } from '@/modules/notification/notification.service';
 import { NOTIFICATION_TYPES } from '@/modules/notification/notification.constants';
@@ -69,9 +69,8 @@ export class OrderService {
             };
         });
         const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-        const deliveryType = body.deliveryType;
-        const deliveryFee =
-            deliveryType === DELIVERY_TYPES.PAID_DELIVERY ? PAID_DELIVERY_FEE : IN_DELIVERY_FEE;
+        const deliveryType = DELIVERY_TYPES.PAID_DELIVERY;
+        const deliveryFee = PAID_DELIVERY_FEE;
         const total = subtotal + deliveryFee;
 
         const order = await OrderModel.create({
@@ -91,18 +90,6 @@ export class OrderService {
             },
         });
 
-        if (deliveryType === DELIVERY_TYPES.IN_DELIVERY) {
-            await this.decrementStock(order);
-            await cartService.clear(userId);
-            await this.notifyAdminsOfNewOrder(order);
-            return {
-                url: null,
-                direct: true,
-                orderId: order.id,
-                orderNumber: order.orderNumber,
-            };
-        }
-
         const origin = (body.origin || config.app.clientUrl).replace(/\/$/, '');
 
         try {
@@ -119,10 +106,7 @@ export class OrderService {
                     ...(deliveryFee > 0
                         ? [
                               {
-                                  name:
-                                      deliveryType === DELIVERY_TYPES.PAID_DELIVERY
-                                          ? 'Paid Delivery'
-                                          : 'Case In Delivery',
+                                  name: 'Paid Delivery',
                                   unitAmount: deliveryFee,
                                   quantity: 1,
                               },
@@ -213,8 +197,7 @@ export class OrderService {
     }
 
     private async notifyAdminsOfNewOrder(order: IOrderDocument) {
-        const deliveryLabel =
-            order.deliveryType === DELIVERY_TYPES.PAID_DELIVERY ? 'Paid Delivery' : 'Case In Delivery';
+        const deliveryLabel = 'Paid Delivery';
         const paymentLabel = order.status === ORDER_STATUS.PAID ? 'Paid' : 'Unpaid';
         try {
             await notificationService.notifyAdmins({

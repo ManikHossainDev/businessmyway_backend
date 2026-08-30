@@ -54,6 +54,7 @@ app.use(httpLogger);
 // app.use(helmet());
 app.use(
     helmet({
+        frameguard: false,
         crossOriginResourcePolicy: {
             policy: "cross-origin",
         },
@@ -73,13 +74,23 @@ app.use(
     "/uploads",
     (req, res, next) => {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        res.setHeader(
-            "Cross-Origin-Resource-Policy",
-            "cross-origin"
-        );
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+        res.removeHeader("X-Frame-Options");
+        res.setHeader("Content-Security-Policy", "frame-ancestors *");
         next();
     },
-    express.static(UPLOAD_DIRECTORY)
+    express.static(UPLOAD_DIRECTORY, {
+        setHeaders: (res, filePath) => {
+            if (filePath.toLowerCase().includes(`${path.sep}identity-documents${path.sep}`)) {
+                res.removeHeader("X-Frame-Options");
+                res.setHeader("Content-Security-Policy", "frame-ancestors *");
+                if (filePath.toLowerCase().endsWith(".pdf") || filePath.toLowerCase().endsWith(".bin")) {
+                    res.setHeader("Content-Type", "application/pdf");
+                }
+            }
+        },
+    }),
 );
 app.use('/logo', express.static(LOGO_DIRECTORY));
 // Raw body required for Stripe webhook signature verification — must be before express.json()

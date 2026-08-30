@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { ONBOARDING_STEPS, AUTH_STRATEGIES, USER_DEFAULTS, USER_STATUS } from './user.constants';
+import { ONBOARDING_STEPS, AUTH_STRATEGIES, USER_DEFAULTS, USER_STATUS, IDENTITY_DOCUMENT_TYPES } from './user.constants';
 import type { IUserDocument } from './user.interface';
 import { ALL_ROLES, ROLES } from '@/core/constants/roles';
 import { toJSONPlugin } from '@infra/database/plugins/toJSON.plugin';
@@ -75,6 +75,16 @@ const userSchema = new Schema<IUserDocument>(
         avatar: {
             type: String,
             trim: true,
+        },
+        identityDocument: {
+            type: String,
+            trim: true,
+            default: '',
+        },
+        identityDocumentType: {
+            type: String,
+            enum: Object.values(IDENTITY_DOCUMENT_TYPES),
+            default: IDENTITY_DOCUMENT_TYPES.NID,
         },
         address: {
             type: String,

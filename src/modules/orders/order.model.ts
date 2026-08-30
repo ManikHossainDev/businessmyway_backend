@@ -57,7 +57,7 @@ const orderSchema = new Schema<IOrderDocument>(
         deliveryType: {
             type: String,
             enum: Object.values(DELIVERY_TYPES),
-            default: DELIVERY_TYPES.IN_DELIVERY,
+            default: DELIVERY_TYPES.PAID_DELIVERY,
         },
         customer: {
             name: { type: String, required: true, trim: true },

@@ -1,7 +1,13 @@
 import { z } from 'zod';
-import { ONBOARDING_STEPS } from '../user/user.constants';
+import { IDENTITY_DOCUMENT_TYPES } from '../user/user.constants';
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,72}$/;
+
+const coerceBoolean = z.preprocess((value) => {
+    if (value === 'true' || value === true || value === '1' || value === 1) return true;
+    if (value === 'false' || value === false || value === '0' || value === 0) return false;
+    return value;
+}, z.boolean({ error: 'You must agree to the terms and conditions' }));
 
 export const registerBodySchema = z.object({
     name: z.string().trim().min(2).max(120),
@@ -9,7 +15,11 @@ export const registerBodySchema = z.object({
     password: z.string().min(8).max(72).regex(passwordRegex, 'Password must include uppercase, lowercase, number, and special character.'),
     confirmPassword: z.string().min(1),
     phone: z.string().trim().optional(),
-    agreeTermsAndConditions: z.boolean({ error: 'You must agree to the terms and conditions' }),
+    agreeTermsAndConditions: coerceBoolean,
+    identityDocumentType: z
+        .enum([IDENTITY_DOCUMENT_TYPES.NID, IDENTITY_DOCUMENT_TYPES.DRIVING_LICENSE])
+        .optional()
+        .default(IDENTITY_DOCUMENT_TYPES.NID),
     dateOfBirth: z.string()
         .min(1, 'Date of birth is required')
         .refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid date format' })

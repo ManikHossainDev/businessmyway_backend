@@ -22,8 +22,8 @@ import { completeProfileBodySchema } from '../user/user.validation';
 const router = Router();
 
 router.post('/register',
-    setUploadDir('avatars'),
-    uploadSingle('avatar'),
+    setUploadDir('identity-documents'),
+    uploadSingle('identityDocument'),
     parseMultipartData,
     validate({ body: registerBodySchema }),
     authController.register);
