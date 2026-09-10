@@ -16,9 +16,9 @@ export const PRODUCT_ATTRIBUTE_SCHEMA: Record<ProductCategorySlug, ProductAttrib
             options: ['Ultra Light', 'Light', 'Medium', 'Full Strength'],
         },
         {
-            key: 'flavour',
-            label: 'Flavour',
-            options: ['Classic', 'Menthol', 'Vanilla'],
+            key: 'cigaretteSize',
+            label: 'Cigarette Size',
+            options: ['King Size', 'Super King Size', 'Slims'],
         },
         {
             key: 'packSize',

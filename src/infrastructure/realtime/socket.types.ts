@@ -88,11 +88,21 @@ export interface DealStatusUpdatePayload {
     productQuantity?: number;
 }
 
+export interface PresenceUpdatePayload {
+    userId: string;
+    isOnline: boolean;
+}
+
+export interface PresenceInitialPayload {
+    onlineUserIds: string[];
+}
+
 export interface ServerToClientEvents {
     'system:connected': (payload: {
         socketId: string;
         connectedAt: string;
         user: RealtimeSocketUser;
+        onlineUserIds?: string[];
     }) => void;
     'system:error': (payload: { code: string; message: string }) => void;
     'notification:new': (payload: RealtimeNotificationPayload) => void;
@@ -100,12 +110,27 @@ export interface ServerToClientEvents {
     'chat:user-joined': (payload: ChatMembershipEvent) => void;
     'chat:user-left': (payload: ChatMembershipEvent) => void;
     'deal:status_update': (payload: DealStatusUpdatePayload) => void;
+    'presence:update': (payload: PresenceUpdatePayload) => void;
+    'presence:initial': (payload: PresenceInitialPayload) => void;
+}
+
+export interface ChatStartPayload {
+    targetUserId?: string;
+}
+
+export interface ChatHistoryPayload {
+    roomId?: string;
+    conversationId?: string;
+    limit?: number;
 }
 
 export interface ClientToServerEvents {
+    'chat:start': (payload?: ChatStartPayload, ack?: (response: RealtimeAck) => void) => void;
     'chat:join': (payload: ChatRoomPayload, ack?: RealtimeAckHandler) => void;
     'chat:leave': (payload: ChatRoomPayload, ack?: RealtimeAckHandler) => void;
+    'chat:history': (payload: ChatHistoryPayload, ack?: (response: RealtimeAck) => void) => void;
     'chat:message': (payload: ChatMessagePayload, ack?: RealtimeAckHandler) => void;
+    'presence:list': (ack?: (response: { ok: boolean; data: { onlineUserIds: string[] } }) => void) => void;
 }
 
 export interface InterServerEvents {
