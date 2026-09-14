@@ -23,6 +23,7 @@ import wishlistRoutes from '@/modules/wishlist/wishlist.routes';
 import cartRoutes from '@/modules/cart/cart.routes';
 import orderRoutes from '@/modules/orders/order.routes';
 import { orderController } from '@/modules/orders/order.controller';
+import deliveryRoutes from '@/modules/delivery/delivery.routes';
 import adminRoutes from '@/modules/admin/admin.routes';
 import devRoutes from '@/modules/dev/dev.routes';
 
@@ -93,6 +94,7 @@ router.use('/wishlist', wishlistRoutes);
 router.use('/cart', cartRoutes);
 router.post('/stripe/webhook', orderController.stripeWebhook);
 router.use('/orders', orderRoutes);
+router.use('/delivery', deliveryRoutes);
 router.use('/admin', adminRoutes);
 router.use('/dev', devRoutes);
 

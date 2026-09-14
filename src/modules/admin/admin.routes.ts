@@ -11,6 +11,7 @@ import productRoutes from './products/product.routes';
 import orderRoutes from './orders/order.routes';
 import reviewRoutes from './reviews/review.routes';
 import dashboardRoutes from './dashboard/dashboard.routes';
+import deliveryRoutes from './delivery/delivery.routes';
 
 const router = Router();
 
@@ -26,5 +27,7 @@ router.use('/products', productRoutes);
 router.use('/orders', orderRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/notifications', notificationsRoutes);
+router.use('/delivery', deliveryRoutes);
+router.use('/managedelivery', deliveryRoutes);
 
 export default router;
