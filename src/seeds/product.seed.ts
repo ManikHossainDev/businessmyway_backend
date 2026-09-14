@@ -34,7 +34,7 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
             price: 12.5,
             stockQty: 120,
             description: 'A bold, full-strength classic blend in a standard 20-pack.',
-            attributes: { strength: 'Full Strength', cigaretteSize: 'King Size', packSize: '20 Pack' },
+            attributes: { strength: 'Full Strength', cigaretteSize: 'King Size' },
             isFeatured: true,
         },
         {
@@ -43,7 +43,7 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
             price: 12,
             stockQty: 90,
             description: 'A smooth, light-strength Super King blend for an extended draw.',
-            attributes: { strength: 'Light', cigaretteSize: 'Super King Size', packSize: '20 Pack' },
+            attributes: { strength: 'Light', cigaretteSize: 'Super King Size' },
             isFeatured: true,
         },
         {
@@ -52,7 +52,7 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
             price: 105,
             stockQty: 40,
             description: 'Ultra-light Slims cigarettes, carton of 10 packs.',
-            attributes: { strength: 'Ultra Light', cigaretteSize: 'Slims', packSize: 'Carton x 10' },
+            attributes: { strength: 'Ultra Light', cigaretteSize: 'Slims' },
         },
         {
             name: 'Medium Classic 10s',
@@ -60,7 +60,7 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
             price: 7.5,
             stockQty: 110,
             description: 'A balanced medium-strength classic blend in a 10-pack.',
-            attributes: { strength: 'Medium', cigaretteSize: 'King Size', packSize: '10 Pack' },
+            attributes: { strength: 'Medium', cigaretteSize: 'King Size' },
         },
         {
             name: 'Full Strength Super King Carton',
@@ -68,7 +68,7 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
             price: 108,
             stockQty: 28,
             description: 'Full-strength Super King cigarettes, carton of 10 packs.',
-            attributes: { strength: 'Full Strength', cigaretteSize: 'Super King Size', packSize: 'Carton x 10' },
+            attributes: { strength: 'Full Strength', cigaretteSize: 'Super King Size' },
         },
     ],
     cigars: [
@@ -82,7 +82,6 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
                 vitola: 'Robusto',
                 origin: 'Cuba',
                 wrapperColor: 'Natural',
-                packSize: '10 Pack',
             },
             isFeatured: true,
         },
@@ -96,7 +95,6 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
                 vitola: 'Churchill',
                 origin: 'Nicaragua',
                 wrapperColor: 'Maduro',
-                packSize: '20 Pack',
             },
             isFeatured: true,
         },
@@ -110,7 +108,6 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
                 vitola: 'Toro',
                 origin: 'Dominican Republic',
                 wrapperColor: 'Colorado',
-                packSize: '10 Pack',
             },
         },
         {
@@ -123,7 +120,6 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
                 vitola: 'Corona',
                 origin: 'Honduras',
                 wrapperColor: 'Claro',
-                packSize: '10 Pack',
             },
         },
         {
@@ -136,7 +132,6 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
                 vitola: 'Panetela',
                 origin: 'Cuba',
                 wrapperColor: 'Natural',
-                packSize: 'Carton x 10',
             },
         },
     ],

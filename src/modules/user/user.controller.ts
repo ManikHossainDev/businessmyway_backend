@@ -124,6 +124,18 @@ const approveUser: RequestHandler = catchAsync(async (req, res) => {
     });
 });
 
+const declineUser: RequestHandler = catchAsync(async (req, res) => {
+    const user = await userService.declineUser(
+        req.params.id as string,
+        (req.body as { reason?: string })?.reason,
+    );
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: MESSAGES.USER.DECLINED,
+        data: serializeUser(user),
+    });
+});
+
 export const userController = {
     getMe,
     updateMe,
@@ -135,4 +147,5 @@ export const userController = {
     removeAddress,
     setDefaultAddress,
     approveUser,
+    declineUser,
 };

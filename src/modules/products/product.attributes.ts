@@ -20,11 +20,6 @@ export const PRODUCT_ATTRIBUTE_SCHEMA: Record<ProductCategorySlug, ProductAttrib
             label: 'Cigarette Size',
             options: ['King Size', 'Super King Size', 'Slims'],
         },
-        {
-            key: 'packSize',
-            label: 'Pack Size',
-            options: ['10 Pack', '20 Pack', 'Carton x 10'],
-        },
     ],
     cigars: [
         {
@@ -41,11 +36,6 @@ export const PRODUCT_ATTRIBUTE_SCHEMA: Record<ProductCategorySlug, ProductAttrib
             key: 'wrapperColor',
             label: 'Wrapper Colour',
             options: ['Natural', 'Claro', 'Colorado', 'Maduro'],
-        },
-        {
-            key: 'packSize',
-            label: 'Pack Size',
-            options: ['10 Pack', '20 Pack', 'Carton x 10'],
         },
     ],
     tobacco: [

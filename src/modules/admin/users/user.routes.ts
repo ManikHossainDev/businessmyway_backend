@@ -11,5 +11,10 @@ router.patch(
     validate({ params: userIdParamSchema }),
     userController.approveUser,
 );
+router.patch(
+    '/:id/decline',
+    validate({ params: userIdParamSchema }),
+    userController.declineUser,
+);
 
 export default router;

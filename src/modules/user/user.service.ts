@@ -72,7 +72,11 @@ export class UserService {
     ): Promise<OffsetPaginationResult<IUserDocument>> {
         const query: Record<string, unknown> = { isDeleted: false };
 
-        if (filters.role) query.role = filters.role;
+        if (filters.role) {
+            query.role = filters.role;
+        } else {
+            query.role = { $ne: ROLES.SUPER_ADMIN };
+        }
         if (filters.status) query.status = filters.status;
         if (filters.onboardingStep) query.onboardingStep = filters.onboardingStep;
         if (typeof filters.isOnboardingCompleted === 'boolean') {
@@ -219,6 +223,36 @@ export class UserService {
             userId: updated.id || String(updated._id),
             email: updated.email,
             name: updated.name,
+        });
+
+        return updated;
+    }
+
+    async declineUser(
+        id: string,
+        reason?: string,
+        options?: RepositoryWriteOptions,
+    ): Promise<IUserDocument> {
+        const user = await this.getById(id, options);
+        if (user.role === ROLES.SUPER_ADMIN) {
+            throw new BadRequestError('Admin accounts cannot be declined.', 'ADMIN_DECLINE_NOT_ALLOWED');
+        }
+
+        const updated = await this.updateById(
+            id,
+            {
+                onboardingStep: ONBOARDING_STEPS.UNDER_REVIEW,
+                isOnboardingCompleted: false,
+                rejectionReason: reason || null,
+            },
+            options,
+        );
+
+        eventBus.emit('user:profile-rejected', {
+            userId: updated.id || String(updated._id),
+            email: updated.email,
+            name: updated.name,
+            reason: reason || undefined,
         });
 
         return updated;

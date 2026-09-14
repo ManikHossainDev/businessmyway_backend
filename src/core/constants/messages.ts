@@ -33,6 +33,8 @@ export const MESSAGES = {
         NOT_FOUND: 'User not found.',
         APPROVED: 'User account approved successfully.',
         ALREADY_APPROVED: 'This account is already approved.',
+        DECLINED: 'User account declined successfully.',
+        ALREADY_DECLINED: 'This account is already declined.',
         IDENTITY_DOCUMENT_REQUIRED: 'Please upload your NID or driving license.',
         DELETED: 'User deleted successfully.',
         PROFILE_COMPLETED: 'Profile completed successfully.',

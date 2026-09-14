@@ -63,8 +63,13 @@ app.use(
 app.use(hpp());
 app.use(
     cors({
-        origin: "*",
+        origin: (origin, callback) => {
+            // Allow all origins or reflect the incoming origin when credentials: true
+            callback(null, true);
+        },
         credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     }),
 );
 app.use(compression());
