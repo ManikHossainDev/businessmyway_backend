@@ -14,6 +14,8 @@ import { UserModel } from '@/modules/user/user.model';
 import { logger } from '@/infrastructure/logger/winston.logger';
 import { emitNotificationCreated } from '@/infrastructure/realtime';
 import { serializeNotification } from './notification.serializer';
+import { sendMail } from '@/modules/mail/mail.service';
+import { EMAIL_TEMPLATES } from '@/modules/mail/mail.constants';
 import { ROLES } from '@/core/constants/roles';
 
 interface NotificationListFilters {
@@ -27,7 +29,7 @@ export class NotificationService {
         payload: CreateNotificationInput,
         options?: RepositoryWriteOptions,
     ): Promise<INotificationDocument> {
-        return this.repository.create(
+        const created = await this.repository.create(
             {
                 userId: new Types.ObjectId(payload.userId),
                 title: payload.title,
@@ -39,6 +41,26 @@ export class NotificationService {
             } as Partial<INotificationDocument>,
             options,
         );
+        // Emit realtime notification
+        try {
+            emitNotificationCreated(String(payload.userId), serializeNotification(created));
+        } catch (err) {
+            logger.warn('Failed to emit realtime notification:', { error: err });
+        }
+        // Send email if a template exists for this notification type
+        if (payload.type && EMAIL_TEMPLATES[payload.type]) {
+            try {
+                const user = await UserModel.findById(payload.userId).select('email').lean();
+                if (user?.email) {
+                    const generator = EMAIL_TEMPLATES[payload.type];
+                    const { subject, html } = generator!(payload);
+                    await sendMail(user.email, subject, html);
+                }
+            } catch (err) {
+                logger.warn('Failed to send notification email:', { error: err });
+            }
+        }
+        return created;
     }
 
     async listUserNotifications(
@@ -88,14 +110,13 @@ export class NotificationService {
             .lean();
 
         for (const admin of admins) {
-            const notification = await this.createNotification({
+            await this.createNotification({
                 userId: String(admin._id),
                 title: payload.title,
                 message: payload.message,
                 type: payload.type ?? NOTIFICATION_TYPES.INFO,
                 metadata: payload.metadata,
             });
-            emitNotificationCreated(String(admin._id), serializeNotification(notification));
         }
     }
 

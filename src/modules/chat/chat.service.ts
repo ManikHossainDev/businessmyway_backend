@@ -168,6 +168,9 @@ export class ChatService {
         const uniqueConversations: FormattedConversation[] = [];
 
         for (const conv of formatted) {
+            if (user.role === ROLES.SUPER_ADMIN && conv.partner.role === ROLES.SUPER_ADMIN) {
+                continue; // Do not show Super Admins in the admin's conversation list
+            }
             const partnerId = conv.partner.id;
             if (partnerId && !seenPartnerIds.has(partnerId)) {
                 seenPartnerIds.add(partnerId);
