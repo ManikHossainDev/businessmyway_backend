@@ -5,11 +5,16 @@ import type { AuthStrategy, UserStatus, OnboardingStep, IdentityDocumentType } f
 export interface ISavedAddress {
     id?: string;
     _id?: unknown;
-    label: string;
-    houseNumber: string;
-    area: string;
-    location: string;
+    firstName: string;
+    lastName: string;
+    company?: string;
+    address1: string;
+    address2?: string;
+    city: string;
+    country: string;
+    province?: string;
     postcode?: string;
+    phone: string;
     isDefault: boolean;
 }
 

@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
 
 type SavedAddress = {
-    area?: string;
-    location?: string;
+    city?: string;
+    country?: string;
     postcode?: string;
     isDefault?: boolean;
 };
@@ -53,8 +53,8 @@ const formatUserLocation = (addresses?: SavedAddress[]) => {
     if (!addresses?.length) return null;
     const selected = addresses.find((item) => item.isDefault) ?? addresses[0];
     if (!selected) return null;
-    const parts = [selected.area, selected.postcode].filter(Boolean);
-    return parts.length ? parts.join(', ') : selected.location || null;
+    const parts = [selected.city, selected.country].filter(Boolean);
+    return parts.length ? parts.join(', ') : null;
 };
 
 export const serializeReview = (review: ReviewInput | null) => {

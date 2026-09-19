@@ -119,7 +119,7 @@ export class UserService {
         if (!deleted) throw new NotFoundError(MESSAGES.USER.NOT_FOUND, 'USER_NOT_FOUND');
     }
 
-    async addAddress(userId: string, payload: SavedAddressBody): Promise<IUserDocument> {
+    async addAddress(userId: string, payload: any): Promise<IUserDocument> {
         const user = await UserModel.findById(userId);
         if (!user) throw new NotFoundError(MESSAGES.USER.NOT_FOUND, 'USER_NOT_FOUND');
 
@@ -133,11 +133,16 @@ export class UserService {
         user.savedAddresses = [
             ...addresses,
             {
-                label: payload.label,
-                houseNumber: payload.houseNumber,
-                area: payload.area,
-                location: payload.location,
+                firstName: payload.firstName,
+                lastName: payload.lastName,
+                company: payload.company,
+                address1: payload.address1,
+                address2: payload.address2,
+                city: payload.city,
+                country: payload.country,
+                province: payload.province,
                 postcode: payload.postcode || '',
+                phone: payload.phone,
                 isDefault: makeDefault,
             },
         ];
@@ -145,18 +150,23 @@ export class UserService {
         return user;
     }
 
-    async updateAddress(userId: string, addressId: string, payload: SavedAddressBody): Promise<IUserDocument> {
+    async updateAddress(userId: string, addressId: string, payload: any): Promise<IUserDocument> {
         const user = await UserModel.findById(userId);
         if (!user) throw new NotFoundError(MESSAGES.USER.NOT_FOUND, 'USER_NOT_FOUND');
 
         const address = user.savedAddresses?.find((item) => String(item._id) === addressId);
         if (!address) throw new NotFoundError(MESSAGES.USER.ADDRESS_NOT_FOUND, 'USER_ADDRESS_NOT_FOUND');
 
-        address.label = payload.label;
-        address.houseNumber = payload.houseNumber;
-        address.area = payload.area;
-        address.location = payload.location;
+        address.firstName = payload.firstName;
+        address.lastName = payload.lastName;
+        address.company = payload.company;
+        address.address1 = payload.address1;
+        address.address2 = payload.address2;
+        address.city = payload.city;
+        address.country = payload.country;
+        address.province = payload.province;
         address.postcode = payload.postcode || '';
+        address.phone = payload.phone;
 
         if (payload.isDefault) {
             user.savedAddresses?.forEach((item) => {

@@ -1,26 +1,18 @@
 // import type { PlanSummary } from '../user-plan/user-plan.interface';
 import type { IUserDocument } from './user.interface';
 
-export const serializeSavedAddress = (address: {
-    id?: string;
-    _id?: unknown;
-    label: string;
-    houseNumber?: string;
-    area?: string;
-    location?: string;
-    name?: string;
-    line1?: string;
-    line2?: string;
-    city?: string;
-    postcode?: string;
-    isDefault?: boolean;
-}) => ({
+export const serializeSavedAddress = (address: any) => ({
     id: address.id || String(address._id || ''),
-    label: address.label,
-    houseNumber: address.houseNumber || address.line2 || '',
-    area: address.area || address.city || '',
-    location: address.location || address.line1 || '',
+    firstName: address.firstName || '',
+    lastName: address.lastName || '',
+    company: address.company || '',
+    address1: address.address1 || address.houseNumber || address.line1 || '',
+    address2: address.address2 || address.line2 || '',
+    city: address.city || address.area || '',
+    country: address.country || address.location || '',
+    province: address.province || '',
     postcode: address.postcode || '',
+    phone: address.phone || '',
     isDefault: Boolean(address.isDefault),
 });
 

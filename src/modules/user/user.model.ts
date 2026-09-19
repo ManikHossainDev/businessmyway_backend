@@ -93,11 +93,16 @@ const userSchema = new Schema<IUserDocument>(
         savedAddresses: {
             type: [
                 {
-                    label: { type: String, trim: true, required: true, maxlength: 40 },
-                    houseNumber: { type: String, trim: true, required: true, maxlength: 40 },
-                    area: { type: String, trim: true, required: true, maxlength: 120 },
-                    location: { type: String, trim: true, required: true, maxlength: 300 },
+                    firstName: { type: String, trim: true, required: true, maxlength: 40 },
+                    lastName: { type: String, trim: true, required: true, maxlength: 40 },
+                    company: { type: String, trim: true, maxlength: 80 },
+                    address1: { type: String, trim: true, required: true, maxlength: 120 },
+                    address2: { type: String, trim: true, maxlength: 120 },
+                    city: { type: String, trim: true, required: true, maxlength: 80 },
+                    country: { type: String, trim: true, required: true, maxlength: 80 },
+                    province: { type: String, trim: true, maxlength: 80 },
                     postcode: { type: String, trim: true, default: '', maxlength: 20 },
+                    phone: { type: String, trim: true, required: true, maxlength: 20 },
                     isDefault: { type: Boolean, default: false },
                 },
             ],

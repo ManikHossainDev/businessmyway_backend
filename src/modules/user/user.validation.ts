@@ -18,11 +18,16 @@ export const completeProfileBodySchema = z.object({
 });
 
 export const savedAddressBodySchema = z.object({
-    label: z.string().trim().min(1).max(40),
-    houseNumber: z.string().trim().min(1).max(40),
-    area: z.string().trim().min(1).max(120),
-    location: z.string().trim().min(4).max(300),
+    firstName: z.string().trim().min(1).max(40),
+    lastName: z.string().trim().min(1).max(40),
+    company: z.string().trim().max(80).optional(),
+    address1: z.string().trim().min(1).max(120),
+    address2: z.string().trim().max(120).optional(),
+    city: z.string().trim().min(1).max(80),
+    country: z.string().trim().min(1).max(80),
+    province: z.string().trim().max(80).optional(),
     postcode: z.string().trim().max(20).optional().default(''),
+    phone: z.string().trim().min(1).max(20),
     isDefault: z.coerce.boolean().optional().default(false),
 });
 
