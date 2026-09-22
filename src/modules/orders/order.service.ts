@@ -6,8 +6,9 @@ import { stripeService } from '@/infrastructure/stripe/stripe.service';
 import { BadRequestError, ForbiddenError, NotFoundError } from '@/core/errors';
 import { MESSAGES } from '@/core/constants/messages';
 import { OrderModel } from './order.model';
-import { ORDER_STATUS, DELIVERY_TYPES, PAID_DELIVERY_FEE, type IOrderDocument } from './order.interface';
+import { ORDER_STATUS, DELIVERY_TYPES, type DeliveryType, type IOrderDocument } from './order.interface';
 import type { CheckoutBody } from './order.validation';
+import { deliveryService } from '@/modules/delivery/delivery.service';
 import { notificationService } from '@/modules/notification/notification.service';
 import { NOTIFICATION_TYPES } from '@/modules/notification/notification.constants';
 import { logger } from '@/infrastructure/logger/winston.logger';
@@ -69,8 +70,32 @@ export class OrderService {
             };
         });
         const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-        const deliveryType = DELIVERY_TYPES.PAID_DELIVERY;
-        const deliveryFee = PAID_DELIVERY_FEE;
+
+        const deliveryConfig = await deliveryService.getDelivery();
+        const maximumPrice = Number(deliveryConfig?.maximumPrice ?? 200);
+        const requestedType = body.deliveryType || DELIVERY_TYPES.STANDARD;
+
+        let deliveryFee = 0;
+        let deliveryType: DeliveryType = requestedType;
+        let deliveryLabel = 'Standard Delivery';
+
+        if (subtotal >= maximumPrice) {
+            // If subtotal is greater than or equal to maximumPrice, delivery is FREE
+            deliveryFee = 0;
+            deliveryType = requestedType === DELIVERY_TYPES.EXPRESS ? DELIVERY_TYPES.EXPRESS : DELIVERY_TYPES.STANDARD;
+            deliveryLabel = requestedType === DELIVERY_TYPES.EXPRESS ? 'Express Delivery (Free)' : 'Standard Delivery (Free)';
+        } else {
+            if (requestedType === DELIVERY_TYPES.EXPRESS) {
+                deliveryFee = Number(deliveryConfig?.expressDelivery?.price ?? 9.99);
+                deliveryType = DELIVERY_TYPES.EXPRESS;
+                deliveryLabel = `Express Delivery (${deliveryConfig?.expressDelivery?.day || '1-2 Business Days'})`;
+            } else {
+                deliveryFee = Number(deliveryConfig?.standardDelivery?.price ?? 4.99);
+                deliveryType = DELIVERY_TYPES.STANDARD;
+                deliveryLabel = `Standard Delivery (${deliveryConfig?.standardDelivery?.day || '3-5 Business Days'})`;
+            }
+        }
+
         const total = subtotal + deliveryFee;
 
         const order = await OrderModel.create({
@@ -106,7 +131,7 @@ export class OrderService {
                     ...(deliveryFee > 0
                         ? [
                               {
-                                  name: 'Paid Delivery',
+                                  name: deliveryLabel,
                                   unitAmount: deliveryFee,
                                   quantity: 1,
                               },
@@ -197,7 +222,12 @@ export class OrderService {
     }
 
     private async notifyAdminsOfNewOrder(order: IOrderDocument) {
-        const deliveryLabel = 'Paid Delivery';
+        const deliveryLabel =
+            order.deliveryFee === 0
+                ? 'Free Delivery'
+                : order.deliveryType === DELIVERY_TYPES.EXPRESS
+                ? 'Express Delivery'
+                : 'Standard Delivery';
         const paymentLabel = order.status === ORDER_STATUS.PAID ? 'Paid' : 'Unpaid';
         try {
             await notificationService.notifyAdmins({

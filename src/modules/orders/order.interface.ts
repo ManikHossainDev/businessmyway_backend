@@ -9,6 +9,9 @@ export const ORDER_STATUS = {
 export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
 
 export const DELIVERY_TYPES = {
+    STANDARD: 'standard',
+    EXPRESS: 'express',
+    FREE_DELIVERY: 'free_delivery',
     IN_DELIVERY: 'in_delivery',
     PAID_DELIVERY: 'paid_delivery',
 } as const;
