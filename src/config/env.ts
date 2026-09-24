@@ -76,6 +76,14 @@ const envSchema = z
         STRIPE_WEBHOOK_SECRET: z.string().default(''),
         STRIPE_CURRENCY: z.string().min(3).max(3).default('usd'),
 
+        VIVA_ENV: z.enum(['demo', 'production']).default('demo'),
+        VIVA_CLIENT_ID: z.string().default(''),
+        VIVA_CLIENT_SECRET: z.string().default(''),
+        VIVA_SOURCE_CODE: z.string().default('Default'),
+        VIVA_MERCHANT_ID: z.string().default(''),
+        VIVA_API_KEY: z.string().default(''),
+        VIVA_WEBHOOK_VERIFICATION_KEY: z.string().default(''),
+
         SOCKET_IO_PATH: z
             .string()
             .regex(/^\/[A-Za-z0-9/._-]*$/, 'SOCKET_IO_PATH must start with "/" and use safe chars.')

@@ -98,8 +98,6 @@ app.use(
     }),
 );
 app.use('/logo', express.static(LOGO_DIRECTORY));
-// Raw body required for Stripe webhook signature verification — must be before express.json()
-app.use(`${config.app.apiPrefix}/stripe/webhook`, express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser());

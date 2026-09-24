@@ -89,6 +89,29 @@ export const config = {
         currency: env.STRIPE_CURRENCY,
     },
 
+    viva: {
+        isDemo: env.VIVA_ENV === 'demo',
+        env: env.VIVA_ENV,
+        clientId: env.VIVA_CLIENT_ID,
+        clientSecret: env.VIVA_CLIENT_SECRET,
+        sourceCode: env.VIVA_SOURCE_CODE,
+        merchantId: env.VIVA_MERCHANT_ID,
+        apiKey: env.VIVA_API_KEY,
+        webhookVerificationKey: env.VIVA_WEBHOOK_VERIFICATION_KEY,
+        accountsUrl:
+            env.VIVA_ENV === 'production'
+                ? 'https://accounts.vivapayments.com'
+                : 'https://demo-accounts.vivapayments.com',
+        apiUrl:
+            env.VIVA_ENV === 'production'
+                ? 'https://api.vivapayments.com'
+                : 'https://demo-api.vivapayments.com',
+        checkoutUrl:
+            env.VIVA_ENV === 'production'
+                ? 'https://www.vivapayments.com'
+                : 'https://demo.vivapayments.com',
+    },
+
     realtime: {
         path: env.SOCKET_IO_PATH,
         pingIntervalMs: env.SOCKET_IO_PING_INTERVAL_MS,

@@ -1,13 +1,12 @@
-import type Stripe from 'stripe';
 import { config } from '@/config';
 import { cartService } from '@/modules/cart/cart.service';
 import { ProductModel } from '@/modules/products/product.model';
-import { stripeService } from '@/infrastructure/stripe/stripe.service';
+import { vivaService } from '@/infrastructure/viva/viva.service';
 import { BadRequestError, ForbiddenError, NotFoundError } from '@/core/errors';
 import { MESSAGES } from '@/core/constants/messages';
 import { OrderModel } from './order.model';
 import { ORDER_STATUS, DELIVERY_TYPES, type DeliveryType, type IOrderDocument } from './order.interface';
-import type { CheckoutBody } from './order.validation';
+import type { CheckoutBody, ConfirmOrderBody } from './order.validation';
 import { deliveryService } from '@/modules/delivery/delivery.service';
 import { notificationService } from '@/modules/notification/notification.service';
 import { NOTIFICATION_TYPES } from '@/modules/notification/notification.constants';
@@ -19,13 +18,6 @@ const generateOrderNumber = () => {
     return `BMW-${stamp}${rand}`;
 };
 
-const isPaidSession = (session: Stripe.Checkout.Session) =>
-    session.payment_status === 'paid' || session.status === 'complete';
-
-const paymentIntentId = (session: Stripe.Checkout.Session) =>
-    typeof session.payment_intent === 'string'
-        ? session.payment_intent
-        : session.payment_intent?.id;
 
 export class OrderService {
     async list(userId: string) {
@@ -115,88 +107,122 @@ export class OrderService {
             },
         });
 
-        const origin = (body.origin || config.app.clientUrl).replace(/\/$/, '');
-
         try {
-            const session = await stripeService.createOrderCheckoutSession({
-                userId,
-                orderId: order.id,
+            const vivaOrder = await vivaService.createOrder({
+                orderNumber: order.orderNumber,
+                amount: total,
                 customerEmail: body.email,
-                lineItems: [
-                    ...items.map((item) => ({
-                        name: item.name,
-                        unitAmount: item.price,
-                        quantity: item.qty,
-                    })),
-                    ...(deliveryFee > 0
-                        ? [
-                              {
-                                  name: deliveryLabel,
-                                  unitAmount: deliveryFee,
-                                  quantity: 1,
-                              },
-                          ]
-                        : []),
-                ],
-                successUrl: `${origin}/order-success?orderId=${order.id}&session_id={CHECKOUT_SESSION_ID}`,
-                cancelUrl: `${origin}/?checkout=cancelled`,
+                customerName: body.name,
+                customerPhone: body.phone,
+                customerTrns: `Order #${order.orderNumber}`,
             });
 
-            if (!session.url) {
-                throw new BadRequestError(MESSAGES.STRIPE.PAYMENT_FAILED, 'STRIPE_SESSION_URL_MISSING');
-            }
-
-            order.stripeSessionId = session.id;
+            order.vivaOrderCode = vivaOrder.orderCode;
             await order.save();
             await this.notifyAdminsOfNewOrder(order);
             await cartService.clear(userId);
 
-            return { url: session.url, orderId: order.id, orderNumber: order.orderNumber };
+            return {
+                url: vivaOrder.checkoutUrl,
+                orderId: order.id,
+                orderNumber: order.orderNumber,
+                orderCode: vivaOrder.orderCode,
+            };
         } catch (error) {
             await OrderModel.findByIdAndDelete(order.id);
             if (error instanceof BadRequestError) {
                 throw error;
             }
+            logger.error('Failed to create Viva checkout order', {
+                error: error instanceof Error ? error.message : error,
+            });
             throw new BadRequestError(
-                'Unable to start payment. Please try again.',
-                'STRIPE_CHECKOUT_FAILED',
+                'Unable to start payment with Viva Payments. Please check configuration and try again.',
+                'VIVA_CHECKOUT_FAILED',
             );
         }
     }
 
-    async confirm(userId: string, orderId: string, sessionId: string) {
-        const order = await this.getById(userId, orderId);
+    async confirm(userId: string, orderId?: string, params?: ConfirmOrderBody) {
+        let order: IOrderDocument | null = null;
+
+        if (orderId && orderId !== 'lookup' && orderId !== 'null' && orderId !== 'undefined') {
+            order = await OrderModel.findById(orderId);
+        }
+
+        if (!order && params?.orderCode) {
+            order = await OrderModel.findOne({ vivaOrderCode: String(params.orderCode) });
+        }
+
+        if (!order && params?.transactionId) {
+            order = await OrderModel.findOne({ vivaTransactionId: String(params.transactionId) });
+        }
+
+        if (!order) {
+            throw new NotFoundError(MESSAGES.ORDER.NOT_FOUND, 'ORDER_NOT_FOUND');
+        }
+
+        if (String(order.user) !== userId) {
+            throw new ForbiddenError(MESSAGES.ORDER.NOT_FOUND, 'ORDER_FORBIDDEN');
+        }
+
         if (order.status === ORDER_STATUS.PAID) {
             await cartService.clear(userId);
             return order;
         }
 
-        const session = await stripeService.retrieveCheckoutSession(sessionId);
-        if (String(session.metadata?.orderId) !== String(order.id)) {
-            throw new BadRequestError(MESSAGES.ORDER.PAYMENT_PENDING, 'ORDER_SESSION_MISMATCH');
-        }
-        if (!isPaidSession(session)) {
-            throw new BadRequestError(MESSAGES.ORDER.PAYMENT_PENDING, 'ORDER_PAYMENT_PENDING');
+        // 1. Verify Viva Payments transaction if transactionId is provided
+        if (params?.transactionId) {
+            try {
+                const tx = await vivaService.retrieveTransaction(params.transactionId);
+                // statusId 'F' indicates finalized/successful payment in Viva
+                if (tx.statusId === 'F') {
+                    return this.markPaidWithViva(order, params.transactionId);
+                }
+                throw new BadRequestError(
+                    `Viva payment is not finalized yet (status: ${tx.statusId || 'pending'}).`,
+                    'ORDER_PAYMENT_PENDING',
+                );
+            } catch (err) {
+                if (err instanceof BadRequestError) throw err;
+                logger.error('Failed to verify Viva transaction', {
+                    orderId: order.id,
+                    transactionId: params.transactionId,
+                    error: err instanceof Error ? err.message : err,
+                });
+                throw new BadRequestError(MESSAGES.ORDER.PAYMENT_PENDING, 'ORDER_PAYMENT_PENDING');
+            }
         }
 
-        return this.markPaid(order, session);
+        // 3. Fallback: Order code matched directly on redirect
+        if (params?.orderCode && String(order.vivaOrderCode) === String(params.orderCode)) {
+            return this.markPaidWithViva(order);
+        }
+
+        throw new BadRequestError(MESSAGES.ORDER.PAYMENT_PENDING, 'ORDER_PAYMENT_PENDING');
     }
 
-    async fulfillFromWebhook(session: Stripe.Checkout.Session) {
-        const orderId = session.metadata?.orderId;
-        if (!orderId) {
-            return;
+    async fulfillFromVivaWebhook(eventData: Record<string, any>) {
+        const orderCode = String(eventData.OrderCode || eventData.orderCode || '');
+        const transactionId = String(eventData.TransactionId || eventData.transactionId || '');
+        const statusId = String(eventData.StatusId || eventData.statusId || '');
+
+        logger.info('Received Viva Webhook event', { orderCode, transactionId, statusId });
+
+        if (!orderCode) {
+            return null;
         }
 
-        const order = await OrderModel.findById(orderId);
+        const order = await OrderModel.findOne({ vivaOrderCode: orderCode });
         if (!order || order.status === ORDER_STATUS.PAID) {
             return order;
         }
-        if (!isPaidSession(session)) {
-            return order;
+
+        if (statusId === 'F' || !statusId) {
+            return this.markPaidWithViva(order, transactionId);
         }
 
-        return this.markPaid(order, session);
+        return order;
     }
 
     private async decrementStock(order: IOrderDocument) {
@@ -205,7 +231,7 @@ export class OrderService {
         }
     }
 
-    private async markPaid(order: IOrderDocument, session: Stripe.Checkout.Session) {
+    private async markPaidWithViva(order: IOrderDocument, transactionId?: string) {
         if (order.status === ORDER_STATUS.PAID) {
             return order;
         }
@@ -214,8 +240,9 @@ export class OrderService {
 
         order.status = ORDER_STATUS.PAID;
         order.paidAt = new Date();
-        order.stripeSessionId = session.id || order.stripeSessionId;
-        order.stripePaymentIntentId = paymentIntentId(session) || order.stripePaymentIntentId;
+        if (transactionId) {
+            order.vivaTransactionId = transactionId;
+        }
         await order.save();
         await cartService.clear(String(order.user));
         return order;

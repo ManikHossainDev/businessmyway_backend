@@ -46,6 +46,8 @@ export interface IOrder {
     status: OrderStatus;
     deliveryType: DeliveryType;
     customer: IOrderCustomer;
+    vivaOrderCode?: string;
+    vivaTransactionId?: string;
     stripeSessionId?: string;
     stripePaymentIntentId?: string;
     paidAt?: Date;

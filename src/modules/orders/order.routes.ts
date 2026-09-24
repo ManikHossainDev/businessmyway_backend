@@ -4,7 +4,7 @@ import { authenticate } from '@/shared/middlewares/authenticate';
 import { requireCustomer } from '@/shared/middlewares/authorize';
 import { MESSAGES } from '@/core/constants/messages';
 import { orderController } from './order.controller';
-import { checkoutBodySchema, confirmOrderBodySchema, orderIdParamSchema } from './order.validation';
+import { checkoutBodySchema, confirmOrderBodySchema, confirmOrderIdParamSchema, orderIdParamSchema } from './order.validation';
 
 const router = Router();
 
@@ -14,7 +14,7 @@ router.post('/checkout', validate({ body: checkoutBodySchema }), orderController
 router.get('/', orderController.list);
 router.post(
     '/:id/confirm',
-    validate({ params: orderIdParamSchema, body: confirmOrderBodySchema }),
+    validate({ params: confirmOrderIdParamSchema, body: confirmOrderBodySchema }),
     orderController.confirm,
 );
 router.get('/:id', validate({ params: orderIdParamSchema }), orderController.getOne);

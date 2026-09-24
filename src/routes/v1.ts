@@ -92,7 +92,7 @@ router.use('/subscribers', subscriberRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/wishlist', wishlistRoutes);
 router.use('/cart', cartRoutes);
-router.post('/stripe/webhook', orderController.stripeWebhook);
+router.all('/viva/webhook', orderController.vivaWebhook);
 router.use('/orders', orderRoutes);
 router.use('/delivery', deliveryRoutes);
 router.use('/admin', adminRoutes);
