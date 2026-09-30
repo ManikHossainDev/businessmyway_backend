@@ -12,7 +12,7 @@ High-performance, scalable backend server built with **Node.js**, **Express**, *
 - **Realtime Layer**: Socket.IO integration for live notifications, push updates, and chat.
 - **Asynchronous Task Processing**: Redis + BullMQ for background job queues (email notifications, push notifications).
 - **Payment Processing**: Stripe integration with secure webhook verification.
-- **Robust Validation & Error Handling**: Strict request payload validation using [Zod](https://zod.dev/) and centralized normalized error handling.
+- **Robust Validation & Error Handling**: Strict request payload validation using [Zod](https://zod.dev/) and centralized normalized error handling
 
 ---
 
