@@ -18,5 +18,6 @@ router.post(
     orderController.confirm,
 );
 router.get('/:id', validate({ params: orderIdParamSchema }), orderController.getOne);
+router.patch('/:id/confirm-received', validate({ params: orderIdParamSchema }), orderController.confirmReceived);
 
 export default router;

@@ -12,5 +12,6 @@ router.put(
     validate({ params: brandIdParamSchema, body: createBrandBodySchema }),
     adminBrandController.update,
 );
+router.delete('/:id', validate({ params: brandIdParamSchema }), adminBrandController.remove);
 
 export default router;

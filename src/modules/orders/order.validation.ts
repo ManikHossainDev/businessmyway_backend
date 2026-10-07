@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { DELIVERY_TYPES } from './order.interface';
+import { DELIVERY_TYPES, ORDER_STATUS } from './order.interface';
 
 const objectId = z.string().trim().regex(/^[a-fA-F0-9]{24}$/, 'Valid order id is required');
 
@@ -41,3 +41,30 @@ export const orderIdParamSchema = z.object({
 
 export type CheckoutBody = z.infer<typeof checkoutBodySchema>;
 export type ConfirmOrderBody = z.infer<typeof confirmOrderBodySchema>;
+
+export const updateOrderStatusBodySchema = z.object({
+    status: z.enum([
+        ORDER_STATUS.PENDING,
+        ORDER_STATUS.PAID,
+        ORDER_STATUS.PROCESSING,
+        ORDER_STATUS.ON_THE_WAY,
+        ORDER_STATUS.DELIVERED,
+        ORDER_STATUS.CANCELLED,
+    ]),
+    shippingInfo: z.object({
+        company: z.string().trim().min(1).max(100),
+        trackingId: z.string().trim().min(1).max(100),
+        shippingDate: z.string().pipe(z.coerce.date()),
+        estimatedDeliveryDate: z.string().pipe(z.coerce.date()),
+    }).optional(),
+}).refine(
+    (data) => {
+        if (data.status === ORDER_STATUS.ON_THE_WAY && !data.shippingInfo) {
+            return false;
+        }
+        return true;
+    },
+    { message: 'Shipping info is required when order is on the way.' }
+);
+
+export type UpdateOrderStatusBody = z.infer<typeof updateOrderStatusBodySchema>;

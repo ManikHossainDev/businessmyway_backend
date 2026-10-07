@@ -3,6 +3,9 @@ import type { Document, Types } from 'mongoose';
 export const ORDER_STATUS = {
     PENDING: 'pending',
     PAID: 'paid',
+    PROCESSING: 'processing',
+    ON_THE_WAY: 'on_the_way',
+    DELIVERED: 'delivered',
     CANCELLED: 'cancelled',
 } as const;
 
@@ -36,6 +39,13 @@ export interface IOrderCustomer {
     location: string;
 }
 
+export interface IShippingInfo {
+    company: string;
+    trackingId: string;
+    shippingDate: Date;
+    estimatedDeliveryDate: Date;
+}
+
 export interface IOrder {
     user: Types.ObjectId;
     orderNumber: string;
@@ -46,6 +56,7 @@ export interface IOrder {
     status: OrderStatus;
     deliveryType: DeliveryType;
     customer: IOrderCustomer;
+    shippingInfo?: IShippingInfo;
     vivaOrderCode?: string;
     vivaTransactionId?: string;
     stripeSessionId?: string;

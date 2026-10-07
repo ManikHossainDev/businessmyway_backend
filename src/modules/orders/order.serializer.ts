@@ -16,6 +16,7 @@ export const serializeOrder = (order: IOrderDocument) => ({
         qty: item.qty,
     })),
     customer: order.customer,
+    shippingInfo: order.shippingInfo,
     paidAt: order.paidAt,
     createdAt: order.createdAt,
 });

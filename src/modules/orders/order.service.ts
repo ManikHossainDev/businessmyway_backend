@@ -39,6 +39,38 @@ export class OrderService {
         return order;
     }
 
+    async updateStatusByAdmin(orderId: string, status: string, shippingInfo?: any) {
+        const order = await OrderModel.findById(orderId);
+        if (!order) {
+            throw new NotFoundError(MESSAGES.ORDER.NOT_FOUND, 'ORDER_NOT_FOUND');
+        }
+
+        order.status = status;
+        if (status === ORDER_STATUS.ON_THE_WAY && shippingInfo) {
+            order.shippingInfo = shippingInfo;
+        }
+        await order.save();
+        return order;
+    }
+
+    async confirmReceivedByUser(userId: string, orderId: string) {
+        const order = await OrderModel.findById(orderId);
+        if (!order) {
+            throw new NotFoundError(MESSAGES.ORDER.NOT_FOUND, 'ORDER_NOT_FOUND');
+        }
+        if (String(order.user) !== userId) {
+            throw new ForbiddenError(MESSAGES.ORDER.NOT_FOUND, 'ORDER_FORBIDDEN');
+        }
+
+        if (order.status !== ORDER_STATUS.ON_THE_WAY) {
+            throw new BadRequestError('Order must be on the way to confirm receipt', 'INVALID_STATUS');
+        }
+
+        order.status = ORDER_STATUS.DELIVERED;
+        await order.save();
+        return order;
+    }
+
     async checkout(userId: string, body: CheckoutBody) {
         const cartItems = await cartService.list(userId);
         if (!cartItems.length) {

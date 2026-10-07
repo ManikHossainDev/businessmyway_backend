@@ -36,4 +36,12 @@ const update: RequestHandler = catchAsync(async (req, res) => {
     });
 });
 
-export const adminBrandController = { list, create, update };
+const remove: RequestHandler = catchAsync(async (req, res) => {
+    await brandService.delete(req.params.id as string);
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: MESSAGES.BRAND.DELETED,
+    });
+});
+
+export const adminBrandController = { list, create, update, remove };

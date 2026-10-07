@@ -65,6 +65,12 @@ const orderSchema = new Schema<IOrderDocument>(
             email: { type: String, required: false, trim: true, lowercase: true },
             location: { type: String, required: false, trim: true },
         },
+        shippingInfo: {
+            company: { type: String, trim: true },
+            trackingId: { type: String, trim: true },
+            shippingDate: { type: Date },
+            estimatedDeliveryDate: { type: Date },
+        },
         vivaOrderCode: { type: String, trim: true, index: true },
         vivaTransactionId: { type: String, trim: true, index: true },
         stripeSessionId: { type: String, trim: true, index: true },

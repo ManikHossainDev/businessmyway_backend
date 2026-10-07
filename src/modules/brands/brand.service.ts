@@ -3,7 +3,7 @@ import { BrandModel } from './brand.model';
 import { CategoryModel } from '@/modules/category/category.model';
 import { ProductModel } from '@/modules/products/product.model';
 import type { IBrandPopulated } from './brand.interface';
-import { NotFoundError } from '@/core/errors';
+import { BadRequestError, NotFoundError } from '@/core/errors';
 import { MESSAGES } from '@/core/constants/messages';
 import type { OffsetPaginationParams, OffsetPaginationResult } from '@/core/types/pagination.types';
 
@@ -161,6 +161,23 @@ export class BrandService {
         await brand.save();
 
         return this.getById(id);
+    }
+
+    async delete(id: string): Promise<void> {
+        const brand = await BrandModel.findById(id);
+        if (!brand) {
+            throw new NotFoundError(MESSAGES.BRAND.NOT_FOUND, 'BRAND_NOT_FOUND');
+        }
+
+        const productCount = await ProductModel.countDocuments({ brand: id });
+        if (productCount > 0) {
+            throw new BadRequestError(
+                'Cannot delete brand because it has associated products. Remove or reassign the products first.',
+                'BRAND_IN_USE',
+            );
+        }
+
+        await brand.deleteOne();
     }
 }
 

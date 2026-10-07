@@ -73,4 +73,23 @@ const vivaWebhook: RequestHandler = catchAsync(async (req, res) => {
     return res.status(HTTP_STATUS.OK).json({ received: true });
 });
 
-export const orderController = { checkout, list, listAll, getOne, confirm, vivaWebhook };
+const updateStatus: RequestHandler = catchAsync(async (req, res) => {
+    const { status, shippingInfo } = req.body;
+    const order = await orderService.updateStatusByAdmin(req.params.id as string, status, shippingInfo);
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: 'Order status updated successfully',
+        data: serializeOrder(order),
+    });
+});
+
+const confirmReceived: RequestHandler = catchAsync(async (req, res) => {
+    const order = await orderService.confirmReceivedByUser(req.user!.id, req.params.id as string);
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: 'Order received confirmed',
+        data: serializeOrder(order),
+    });
+});
+
+export const orderController = { checkout, list, listAll, getOne, confirm, vivaWebhook, updateStatus, confirmReceived };

@@ -93,6 +93,7 @@ export const MESSAGES = {
         FETCHED: 'Brands fetched successfully.',
         CREATED: 'Brand created successfully.',
         UPDATED: 'Brand updated successfully.',
+        DELETED: 'Brand deleted successfully.',
         NOT_FOUND: 'Brand not found.',
     },
     PRODUCT: {
