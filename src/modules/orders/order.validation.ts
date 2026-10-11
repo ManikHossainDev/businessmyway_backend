@@ -45,11 +45,8 @@ export type ConfirmOrderBody = z.infer<typeof confirmOrderBodySchema>;
 export const updateOrderStatusBodySchema = z.object({
     status: z.enum([
         ORDER_STATUS.PENDING,
-        ORDER_STATUS.PAID,
-        ORDER_STATUS.PROCESSING,
         ORDER_STATUS.ON_THE_WAY,
         ORDER_STATUS.DELIVERED,
-        ORDER_STATUS.CANCELLED,
     ]),
     shippingInfo: z.object({
         company: z.string().trim().min(1).max(100),
@@ -57,6 +54,7 @@ export const updateOrderStatusBodySchema = z.object({
         shippingDate: z.string().pipe(z.coerce.date()),
         estimatedDeliveryDate: z.string().pipe(z.coerce.date()),
     }).optional(),
+    invoice: z.string().trim().optional(),
 }).refine(
     (data) => {
         if (data.status === ORDER_STATUS.ON_THE_WAY && !data.shippingInfo) {

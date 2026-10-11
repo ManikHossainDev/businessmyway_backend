@@ -10,7 +10,7 @@ const BRAND_CATEGORY_FIXES: Record<string, string> = {
     Montecristos: 'Cigars',
     Cohiba: 'Cigars',
     Partagás: 'Cigars',
-    Davidoff: 'Tobacco',
+    Davidoff: 'RYO',
     Dunhill: 'Accessories',
 };
 

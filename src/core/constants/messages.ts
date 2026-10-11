@@ -87,7 +87,7 @@ export const MESSAGES = {
         DELETED: 'Category deleted successfully.',
         NOT_FOUND: 'Category not found.',
         ALREADY_EXISTS: 'A category with this name already exists.',
-        LOCKED: 'Cigarettes, Cigars, Tobacco and Accessories cannot be edited or deleted.',
+        LOCKED: 'Cigarettes, Cigars, RYO and Accessories cannot be edited or deleted.',
     },
     BRAND: {
         FETCHED: 'Brands fetched successfully.',

@@ -17,13 +17,7 @@ export class DashboardService {
                 OrderModel.aggregate<{ total: number }>([
                     {
                         $match: {
-                            $or: [
-                                { status: ORDER_STATUS.PAID },
-                                {
-                                    deliveryType: DELIVERY_TYPES.IN_DELIVERY,
-                                    status: { $ne: ORDER_STATUS.CANCELLED },
-                                },
-                            ],
+                            status: { $in: Object.values(ORDER_STATUS) },
                         },
                     },
                     { $group: { _id: null, total: { $sum: '$total' } } },

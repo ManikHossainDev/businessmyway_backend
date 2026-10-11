@@ -5,9 +5,9 @@ import { logger } from '@/infrastructure/logger/winston.logger';
 export interface CreateVivaOrderInput {
     orderNumber: string;
     amount: number;
-    customerEmail: string;
-    customerName: string;
-    customerPhone: string;
+    customerEmail?: string;
+    customerName?: string;
+    customerPhone?: string;
     countryCode?: string;
     customerTrns?: string;
 }
@@ -113,9 +113,9 @@ class VivaService {
             amount: amountInCents,
             customerTrns: input.customerTrns || `Order #${input.orderNumber}`,
             customer: {
-                email: input.customerEmail,
-                fullName: input.customerName,
-                phone: input.customerPhone,
+                email: input.customerEmail || '',
+                fullName: input.customerName || 'Customer',
+                phone: input.customerPhone || '',
                 countryCode: input.countryCode || 'GB',
                 requestLang: 'en-GB',
             },

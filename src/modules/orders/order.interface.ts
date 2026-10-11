@@ -2,11 +2,8 @@ import type { Document, Types } from 'mongoose';
 
 export const ORDER_STATUS = {
     PENDING: 'pending',
-    PAID: 'paid',
-    PROCESSING: 'processing',
     ON_THE_WAY: 'on_the_way',
     DELIVERED: 'delivered',
-    CANCELLED: 'cancelled',
 } as const;
 
 export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
@@ -57,6 +54,7 @@ export interface IOrder {
     deliveryType: DeliveryType;
     customer: IOrderCustomer;
     shippingInfo?: IShippingInfo;
+    invoice?: string;
     vivaOrderCode?: string;
     vivaTransactionId?: string;
     stripeSessionId?: string;

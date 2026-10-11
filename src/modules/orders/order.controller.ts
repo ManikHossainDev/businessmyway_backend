@@ -9,6 +9,9 @@ import { BadRequestError } from '@/core/errors';
 
 import { vivaService } from '@/infrastructure/viva/viva.service';
 import { serializeOrder } from './order.serializer';
+import { config } from '@/config';
+import { getFileUrl, s3StorageService } from '@/infrastructure/storage';
+import fs from 'fs';
 
 const checkout: RequestHandler = catchAsync(async (req, res) => {
     const result = await orderService.checkout(req.user!.id, req.body);
@@ -74,11 +77,47 @@ const vivaWebhook: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const updateStatus: RequestHandler = catchAsync(async (req, res) => {
-    const { status, shippingInfo } = req.body;
-    const order = await orderService.updateStatusByAdmin(req.params.id as string, status, shippingInfo);
+    const { status, shippingInfo, invoice } = req.body;
+    const order = await orderService.updateStatusByAdmin(
+        req.params.id as string,
+        status,
+        shippingInfo,
+        invoice,
+    );
     return sendResponse(res, {
         statusCode: HTTP_STATUS.OK,
         message: 'Order status updated successfully',
+        data: serializeOrder(order),
+    });
+});
+
+const uploadInvoice: RequestHandler = catchAsync(async (req, res) => {
+    let invoiceUrl = req.body?.invoice;
+    if (req.file) {
+        if (config.storage.mode === 's3') {
+            const fileBuffer = req.file.buffer || fs.readFileSync(req.file.path);
+            const result = await s3StorageService.upload(fileBuffer, 'invoices');
+            invoiceUrl = result.url;
+        } else {
+            invoiceUrl = getFileUrl(req.file.filename, 'invoices');
+        }
+    }
+    if (!invoiceUrl) {
+        throw new BadRequestError('Invoice file or URL is required', 'INVOICE_REQUIRED');
+    }
+    const order = await orderService.updateInvoiceByAdmin(req.params.id as string, invoiceUrl);
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: 'Invoice updated successfully',
+        data: serializeOrder(order),
+    });
+});
+
+const deleteInvoice: RequestHandler = catchAsync(async (req, res) => {
+    const order = await orderService.updateInvoiceByAdmin(req.params.id as string, '');
+    return sendResponse(res, {
+        statusCode: HTTP_STATUS.OK,
+        message: 'Invoice removed successfully',
         data: serializeOrder(order),
     });
 });
@@ -92,4 +131,15 @@ const confirmReceived: RequestHandler = catchAsync(async (req, res) => {
     });
 });
 
-export const orderController = { checkout, list, listAll, getOne, confirm, vivaWebhook, updateStatus, confirmReceived };
+export const orderController = {
+    checkout,
+    list,
+    listAll,
+    getOne,
+    confirm,
+    vivaWebhook,
+    updateStatus,
+    uploadInvoice,
+    deleteInvoice,
+    confirmReceived,
+};

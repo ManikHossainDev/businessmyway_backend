@@ -5,7 +5,7 @@ import { vivaService } from '@/infrastructure/viva/viva.service';
 import { BadRequestError, ForbiddenError, NotFoundError } from '@/core/errors';
 import { MESSAGES } from '@/core/constants/messages';
 import { OrderModel } from './order.model';
-import { ORDER_STATUS, DELIVERY_TYPES, type DeliveryType, type IOrderDocument } from './order.interface';
+import { ORDER_STATUS, DELIVERY_TYPES, type DeliveryType, type IOrderDocument, type OrderStatus, type IShippingInfo } from './order.interface';
 import type { CheckoutBody, ConfirmOrderBody } from './order.validation';
 import { deliveryService } from '@/modules/delivery/delivery.service';
 import { notificationService } from '@/modules/notification/notification.service';
@@ -39,16 +39,36 @@ export class OrderService {
         return order;
     }
 
-    async updateStatusByAdmin(orderId: string, status: string, shippingInfo?: any) {
+    async updateStatusByAdmin(
+        orderId: string,
+        status?: OrderStatus,
+        shippingInfo?: IShippingInfo,
+        invoice?: string,
+    ) {
         const order = await OrderModel.findById(orderId);
         if (!order) {
             throw new NotFoundError(MESSAGES.ORDER.NOT_FOUND, 'ORDER_NOT_FOUND');
         }
 
-        order.status = status;
+        if (status) {
+            order.status = status;
+        }
         if (status === ORDER_STATUS.ON_THE_WAY && shippingInfo) {
             order.shippingInfo = shippingInfo;
         }
+        if (invoice !== undefined) {
+            order.invoice = invoice;
+        }
+        await order.save();
+        return order;
+    }
+
+    async updateInvoiceByAdmin(orderId: string, invoice: string) {
+        const order = await OrderModel.findById(orderId);
+        if (!order) {
+            throw new NotFoundError(MESSAGES.ORDER.NOT_FOUND, 'ORDER_NOT_FOUND');
+        }
+        order.invoice = invoice;
         await order.save();
         return order;
     }
@@ -132,10 +152,10 @@ export class OrderService {
             deliveryType,
             status: ORDER_STATUS.PENDING,
             customer: {
-                name: body.name,
+                name: body.name || 'Customer',
                 phone: body.phone,
-                email: body.email,
-                location: body.location,
+                email: body.email || '',
+                location: body.location || '',
             },
         });
 
@@ -143,8 +163,8 @@ export class OrderService {
             const vivaOrder = await vivaService.createOrder({
                 orderNumber: order.orderNumber,
                 amount: total,
-                customerEmail: body.email,
-                customerName: body.name,
+                customerEmail: body.email || '',
+                customerName: body.name || 'Customer',
                 customerPhone: body.phone,
                 customerTrns: `Order #${order.orderNumber}`,
             });
@@ -198,7 +218,7 @@ export class OrderService {
             throw new ForbiddenError(MESSAGES.ORDER.NOT_FOUND, 'ORDER_FORBIDDEN');
         }
 
-        if (order.status === ORDER_STATUS.PAID) {
+        if (order.paidAt) {
             await cartService.clear(userId);
             return order;
         }
@@ -246,7 +266,7 @@ export class OrderService {
         }
 
         const order = await OrderModel.findOne({ vivaOrderCode: orderCode });
-        if (!order || order.status === ORDER_STATUS.PAID) {
+        if (!order || order.paidAt) {
             return order;
         }
 
@@ -264,13 +284,13 @@ export class OrderService {
     }
 
     private async markPaidWithViva(order: IOrderDocument, transactionId?: string) {
-        if (order.status === ORDER_STATUS.PAID) {
+        if (order.paidAt) {
             return order;
         }
 
         await this.decrementStock(order);
 
-        order.status = ORDER_STATUS.PAID;
+        order.status = ORDER_STATUS.PENDING;
         order.paidAt = new Date();
         if (transactionId) {
             order.vivaTransactionId = transactionId;
@@ -287,7 +307,7 @@ export class OrderService {
                 : order.deliveryType === DELIVERY_TYPES.EXPRESS
                 ? 'Express Delivery'
                 : 'Standard Delivery';
-        const paymentLabel = order.status === ORDER_STATUS.PAID ? 'Paid' : 'Unpaid';
+        const paymentLabel = order.paidAt ? 'Paid' : 'Unpaid';
         try {
             await notificationService.notifyAdmins({
                 title: 'New order received',

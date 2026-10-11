@@ -135,7 +135,7 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
             },
         },
     ],
-    tobacco: [
+    ryo: [
         {
             name: 'Virginia Pipe Tobacco 50g',
             sku: 'TOB-PIP-VIR-50',
@@ -227,7 +227,7 @@ const PRODUCTS_BY_CATEGORY: Record<ProductCategorySlug, SeedProduct[]> = {
 const FALLBACK_BRAND_TITLE_BY_CATEGORY: Record<ProductCategorySlug, string> = {
     cigarettes: 'Marlboro',
     cigars: 'Montecristo',
-    tobacco: 'Davidoff',
+    ryo: 'Davidoff',
     accessories: 'Dunhill',
 };
 

@@ -1,6 +1,6 @@
 export const EXCLUDED_PRODUCT_CATEGORY = 'Brands';
 
-export type ProductCategorySlug = 'cigarettes' | 'cigars' | 'tobacco' | 'accessories';
+export type ProductCategorySlug = 'cigarettes' | 'cigars' | 'ryo' | 'accessories';
 
 export type ProductAttributeField = {
     key: string;
@@ -38,21 +38,16 @@ export const PRODUCT_ATTRIBUTE_SCHEMA: Record<ProductCategorySlug, ProductAttrib
             options: ['Natural', 'Claro', 'Colorado', 'Maduro'],
         },
     ],
-    tobacco: [
-        {
-            key: 'type',
-            label: 'Type',
-            options: ['Pipe Tobacco', 'Rolling Tobacco', 'Loose Leaf', 'Shisha'],
-        },
+    ryo: [
         {
             key: 'leafOrigin',
             label: 'Leaf Origin',
             options: ['Virginia', 'Burley', 'Oriental', 'Latakia'],
         },
         {
-            key: 'weight',
-            label: 'Weight',
-            options: ['25g', '50g', '100g', '250g'],
+            key: 'strength',
+            label: 'Strength',
+            options: ['Medium', 'Extra Strong'],
         },
     ],
     accessories: [
@@ -88,7 +83,7 @@ export const getAttributeFields = (categoryName: string): ProductAttributeField[
     return PRODUCT_ATTRIBUTE_SCHEMA[slug] ?? null;
 };
 
-/** Strength/flavour/etc. sidebar filters — only Cigarettes, Cigars, Tobacco, Accessories. */
+/** Strength/flavour/etc. sidebar filters — only Cigarettes, Cigars, RYO, Accessories. */
 export const hasFilterSidebar = (categoryName: string) =>
     Boolean(getAttributeFields(categoryName)?.length);
 

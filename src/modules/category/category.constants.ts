@@ -1,7 +1,7 @@
 export const LOCKED_CATEGORY_NAMES = [
     'Cigarettes',
     'Cigars',
-    'Tobacco',
+    'RYO',
     'Accessories',
 ] as const;
 
