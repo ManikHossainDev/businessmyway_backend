@@ -5,16 +5,16 @@ import type { ApiSuccessResponse } from '@/core/types/response.types';
 interface SendResponseOptions<T> {
     statusCode: number;
     message: string;
-    data: T;
+    data?: T;
     meta?: Record<string, unknown>;
 }
 
-export const sendResponse = <T>(res: Response, options: SendResponseOptions<T>): Response => {
-    const payload: ApiSuccessResponse<T> = {
+export const sendResponse = <T = null>(res: Response, options: SendResponseOptions<T>): Response => {
+    const payload: ApiSuccessResponse<T | null> = {
         success: true,
         statusCode: options.statusCode,
         message: options.message,
-        data: options.data,
+        data: options.data ?? null,
     };
 
     if (options.meta) {

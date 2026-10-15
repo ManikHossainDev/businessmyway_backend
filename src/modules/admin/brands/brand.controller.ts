@@ -41,6 +41,7 @@ const remove: RequestHandler = catchAsync(async (req, res) => {
     return sendResponse(res, {
         statusCode: HTTP_STATUS.OK,
         message: MESSAGES.BRAND.DELETED,
+        data: null,
     });
 });
 
