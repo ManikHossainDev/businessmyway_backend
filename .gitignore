@@ -34,3 +34,5 @@ src/config/your-firebase-config.json
 
 
 .env
+.env.backup
+.env*.local

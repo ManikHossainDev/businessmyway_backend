@@ -9,6 +9,8 @@ export const NOTIFICATION_TYPES = {
     ADMIN_NEW_USER: 'admin_new_user',
     ADMIN_NEW_CLAIM: 'admin_new_claim',
     ADMIN_NEW_ORDER: 'admin_new_order',
+    ORDER_APPROVED: 'order_approved',
+    ORDER_DELIVERED: 'order_delivered',
     INFO: 'info',
 } as const;
 

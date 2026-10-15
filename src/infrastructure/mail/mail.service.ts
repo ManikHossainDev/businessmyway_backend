@@ -28,6 +28,7 @@ export class MailService implements IMailService {
                 to: options.to,
                 subject: options.subject,
                 html,
+                attachments: options.attachments,
             });
         } catch (error) {
             logger.error('Failed to send email', {

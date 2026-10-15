@@ -23,7 +23,18 @@ export const getMailTransporter = (): Transporter => {
     return transporter;
 };
 
-export const sendMail = async (options: { from: string; to: string; subject: string; html: string }): Promise<void> => {
+export const sendMail = async (options: {
+    from: string;
+    to: string;
+    subject: string;
+    html: string;
+    attachments?: Array<{
+        filename: string;
+        path?: string;
+        content?: Buffer | string;
+        contentType?: string;
+    }>;
+}): Promise<void> => {
     const isSes = config.storage.mode === 's3';
     if (isSes) {
         logger.info('Sending email via SES (floci)', { to: options.to, subject: options.subject });

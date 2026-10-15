@@ -1,7 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { config } from '@/config';
 import { cartService } from '@/modules/cart/cart.service';
 import { ProductModel } from '@/modules/products/product.model';
+import { UserModel } from '@/modules/user/user.model';
 import { vivaService } from '@/infrastructure/viva/viva.service';
+import { mailService } from '@/infrastructure/mail/mail.service';
 import { BadRequestError, ForbiddenError, NotFoundError } from '@/core/errors';
 import { MESSAGES } from '@/core/constants/messages';
 import { OrderModel } from './order.model';
@@ -60,6 +64,11 @@ export class OrderService {
             order.invoice = invoice;
         }
         await order.save();
+
+        if (status === ORDER_STATUS.ON_THE_WAY) {
+            await this.notifyCustomerOrderApproved(order);
+        }
+
         return order;
     }
 
@@ -324,6 +333,104 @@ export class OrderService {
         } catch (error) {
             logger.error('Failed to notify admins about new order', {
                 orderId: String(order.id || order._id),
+                error: error instanceof Error ? error.message : error,
+            });
+        }
+    }
+
+    private async notifyCustomerOrderApproved(order: IOrderDocument) {
+        try {
+            let customerEmail = order.customer?.email?.trim();
+            let customerName = order.customer?.name?.trim() || 'Customer';
+
+            if (!customerEmail && order.user) {
+                const user = await UserModel.findById(order.user).select('email name fullName firstName').lean();
+                if (user) {
+                    customerEmail = (user as any).email;
+                    customerName = (user as any).fullName || (user as any).name || (user as any).firstName || customerName;
+                }
+            }
+
+            // 1. Send in-app notification
+            if (order.user) {
+                try {
+                    await notificationService.createNotification({
+                        userId: String(order.user),
+                        title: 'Order Approved & Dispatched',
+                        message: `Your order #${order.orderNumber} has been approved and is on the way! Tracking: ${order.shippingInfo?.trackingId || 'Pending'}`,
+                        type: NOTIFICATION_TYPES.ORDER_APPROVED,
+                        metadata: {
+                            orderId: String(order.id || order._id),
+                            orderNumber: order.orderNumber,
+                            status: order.status,
+                            trackingId: order.shippingInfo?.trackingId,
+                        },
+                    });
+                } catch (notifErr) {
+                    logger.warn('Failed to create in-app notification for order approval', {
+                        orderId: String(order.id || order._id),
+                        error: notifErr instanceof Error ? notifErr.message : notifErr,
+                    });
+                }
+            }
+
+            // 2. Send Email
+            if (customerEmail) {
+                let fullInvoiceUrl = order.invoice || '';
+                if (fullInvoiceUrl && fullInvoiceUrl.startsWith('/')) {
+                    const baseUrl = config.serverBaseUrl || `http://localhost:${config.app.port || 8080}`;
+                    fullInvoiceUrl = `${baseUrl}${fullInvoiceUrl}`;
+                }
+
+                const attachments: Array<{ filename: string; path: string }> = [];
+                if (order.invoice && config.storage.mode === 'local') {
+                    const relativePath = order.invoice.startsWith('/') ? order.invoice.slice(1) : order.invoice;
+                    const diskPath = path.resolve(process.cwd(), relativePath);
+                    if (fs.existsSync(diskPath)) {
+                        attachments.push({
+                            filename: `Invoice-${order.orderNumber}.pdf`,
+                            path: diskPath,
+                        });
+                    }
+                }
+
+                await mailService.send({
+                    to: customerEmail,
+                    subject: `Order #${order.orderNumber} Approved & On The Way!`,
+                    template: 'order-approved',
+                    context: {
+                        userName: customerName,
+                        orderNumber: order.orderNumber,
+                        courierCompany: order.shippingInfo?.company || '',
+                        trackingId: order.shippingInfo?.trackingId || '',
+                        shippingDate: order.shippingInfo?.shippingDate,
+                        estimatedDeliveryDate: order.shippingInfo?.estimatedDeliveryDate,
+                        items: order.items,
+                        subtotal: order.subtotal,
+                        deliveryFee: order.deliveryFee,
+                        total: order.total,
+                        deliveryType: order.deliveryType,
+                        customer: order.customer,
+                        invoiceUrl: fullInvoiceUrl,
+                        clientUrl: config.app.clientUrl,
+                    },
+                    attachments: attachments.length > 0 ? attachments : undefined,
+                });
+
+                logger.info('Order approval email dispatched successfully', {
+                    orderNumber: order.orderNumber,
+                    to: customerEmail,
+                });
+            } else {
+                logger.warn('No customer email found to send order approval notification', {
+                    orderId: String(order.id || order._id),
+                    orderNumber: order.orderNumber,
+                });
+            }
+        } catch (error) {
+            logger.error('Failed to notify customer about approved order', {
+                orderId: String(order.id || order._id),
+                orderNumber: order.orderNumber,
                 error: error instanceof Error ? error.message : error,
             });
         }

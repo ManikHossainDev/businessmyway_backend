@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="x-apple-disable-message-reformatting"/>
+  <meta name="color-scheme" content="light"/>
+  <meta name="supported-color-schemes" content="light"/>
+  <title>Order Approved & Dispatched</title>
+  <%- include("partials/styles") %>
+</head>
+<body style="margin:0;padding:0;background-color:#F5F6FA;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+
+  <!-- Preheader -->
+  <div style="display:none;max-height:0;overflow:hidden;font-size:1px;color:#F5F6FA;line-height:1px;">
+    Great news! Your order #<%= orderNumber %> has been approved and is now on the way.&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;&#847;
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F6FA;">
+    <tr>
+      <td align="center" style="padding:32px 12px 44px;">
+
+        <!-- Logo -->
+        <%- include("partials/logo") %>
+
+        <!-- Main Card -->
+        <table role="presentation" class="ew" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06),0 8px 28px rgba(191,141,47,0.08);border:1px solid #ECECEC;">
+
+          <!-- Hero Header -->
+          <tr>
+            <td style="background:#ffffff;padding:36px 24px 28px;text-align:center;border-bottom:1px solid #F0F0F0;">
+              <p style="margin:0 0 12px;font-size:46px;line-height:1;">&#128666;</p>
+              <h1 style="margin:0 0 8px;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:24px;font-weight:700;color:#1A1A1A;line-height:1.25;letter-spacing:-0.4px;">
+                Order Approved &amp; On The Way!
+              </h1>
+              <p style="margin:0;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;font-weight:400;color:#6B7280;line-height:1.55;">
+                Order <strong style="color:#BF8D2F;font-family:monospace;">#<%= orderNumber %></strong> has been dispatched.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Greeting -->
+          <tr>
+            <td class="ep" style="padding:26px 24px 16px;">
+              <p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#1F2937;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                Hi <strong style="color:#111827;font-weight:600;"><%= typeof userName !== 'undefined' && userName ? userName : 'Customer' %></strong>,
+              </p>
+              <p style="margin:0;font-size:14px;line-height:1.65;color:#4B5563;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                Your order has been verified and processed by our team. It is currently with the delivery courier and on its way to your destination.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Shipping & Tracking Details Box -->
+          <tr>
+            <td style="padding:0 24px 16px;">
+              <div style="background:#FFFDF8;border:1px solid #F3E6C4;border-radius:12px;padding:18px 20px;">
+                <p style="margin:0 0 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#926815;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                  &#128230; Shipping Information
+                </p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                  <% if (typeof courierCompany !== 'undefined' && courierCompany) { %>
+                  <tr>
+                    <td style="padding:4px 0;font-size:13px;color:#6B7280;width:45%;">Courier Company:</td>
+                    <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:600;text-align:right;"><%= courierCompany %></td>
+                  </tr>
+                  <% } %>
+                  <% if (typeof trackingId !== 'undefined' && trackingId) { %>
+                  <tr>
+                    <td style="padding:4px 0;font-size:13px;color:#6B7280;">Tracking Number:</td>
+                    <td style="padding:4px 0;font-size:13px;color:#0348AC;font-weight:700;text-align:right;font-family:monospace;">#<%= trackingId %></td>
+                  </tr>
+                  <% } %>
+                  <% if (typeof shippingDate !== 'undefined' && shippingDate) { %>
+                  <tr>
+                    <td style="padding:4px 0;font-size:13px;color:#6B7280;">Dispatch Date:</td>
+                    <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:500;text-align:right;">
+                      <%= new Date(shippingDate).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) %>
+                    </td>
+                  </tr>
+                  <% } %>
+                  <% if (typeof estimatedDeliveryDate !== 'undefined' && estimatedDeliveryDate) { %>
+                  <tr>
+                    <td style="padding:4px 0;font-size:13px;color:#6B7280;">Estimated Delivery:</td>
+                    <td style="padding:4px 0;font-size:13px;color:#059669;font-weight:700;text-align:right;">
+                      <%= new Date(estimatedDeliveryDate).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) %>
+                    </td>
+                  </tr>
+                  <% } %>
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Items Ordered Section -->
+          <% if (typeof items !== 'undefined' && items && items.length > 0) { %>
+          <tr>
+            <td style="padding:0 24px 16px;">
+              <p style="margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#9CA3AF;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                Items in this Order (<%= items.reduce((acc, it) => acc + (it.qty || 1), 0) %>)
+              </p>
+              <div style="background:#FAFAFA;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden;">
+                <% items.forEach(function(item, idx) { %>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="padding:12px 16px;<%= idx > 0 ? 'border-top:1px solid #F0F0F0;' : '' %>">
+                  <tr>
+                    <td style="vertical-align:middle;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                      <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#111827;line-height:1.4;">
+                        <%= item.name %>
+                      </p>
+                      <p style="margin:0;font-size:12px;color:#6B7280;">
+                        Qty: <strong><%= item.qty %></strong> &middot; &pound;<%= Number(item.price || 0).toFixed(2) %> each
+                      </p>
+                    </td>
+                    <td style="vertical-align:middle;text-align:right;white-space:nowrap;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                      <span style="font-size:14px;font-weight:700;color:#111827;">
+                        &pound;<%= (Number(item.price || 0) * Number(item.qty || 1)).toFixed(2) %>
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+                <% }); %>
+              </div>
+            </td>
+          </tr>
+          <% } %>
+
+          <!-- Pricing & Financial Summary -->
+          <tr>
+            <td style="padding:0 24px 18px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F9FAFB;border-radius:12px;border:1px solid #E5E7EB;padding:16px 18px;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                <tr>
+                  <td style="padding:4px 0;font-size:12px;color:#6B7280;">Subtotal:</td>
+                  <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:500;text-align:right;">
+                    &pound;<%= Number(subtotal || 0).toFixed(2) %>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:4px 0;font-size:12px;color:#6B7280;">
+                    Delivery Fee (<%= typeof deliveryType !== 'undefined' && deliveryType === 'express' ? 'Express' : 'Standard' %>):
+                  </td>
+                  <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:500;text-align:right;">
+                    <%= Number(deliveryFee || 0) > 0 ? '&pound;' + Number(deliveryFee).toFixed(2) : 'Free (&pound;0.00)' %>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding:8px 0 6px;">
+                    <div style="border-top:1px solid #E5E7EB;font-size:0;line-height:0;">&nbsp;</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:4px 0;font-size:14px;color:#111827;font-weight:700;">Total Amount:</td>
+                  <td style="padding:4px 0;font-size:18px;color:#BF8D2F;font-weight:800;text-align:right;">
+                    &pound;<%= Number(total || 0).toFixed(2) %>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Delivery Address -->
+          <% if (typeof customer !== 'undefined' && customer && (customer.location || customer.phone)) { %>
+          <tr>
+            <td style="padding:0 24px 20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAFAFA;border:1px solid #ECECEC;border-radius:12px;padding:14px 18px;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                <tr>
+                  <td>
+                    <p style="margin:0 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6B7280;">
+                      Delivery Address
+                    </p>
+                    <% if (customer.name) { %>
+                    <p style="margin:0 0 2px;font-size:13px;font-weight:600;color:#111827;"><%= customer.name %></p>
+                    <% } %>
+                    <% if (customer.location) { %>
+                    <p style="margin:0 0 2px;font-size:12px;color:#4B5563;line-height:1.4;"><%= customer.location %></p>
+                    <% } %>
+                    <% if (customer.phone) { %>
+                    <p style="margin:0;font-size:12px;color:#6B7280;">Phone: <%= customer.phone %></p>
+                    <% } %>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <% } %>
+
+          <!-- Actions / Call to Action -->
+          <tr>
+            <td style="padding:6px 24px 28px;text-align:center;">
+              <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <% if (typeof invoiceUrl !== 'undefined' && invoiceUrl) { %>
+                  <td style="padding:0 6px;">
+                    <a href="<%= invoiceUrl %>" target="_blank" style="display:inline-block;background:#BF8D2F;color:#ffffff;font-size:13px;font-weight:600;text-decoration:none;padding:12px 22px;border-radius:8px;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                      &#128196; Download Invoice PDF
+                    </a>
+                  </td>
+                  <% } %>
+                  <% if (typeof clientUrl !== 'undefined' && clientUrl) { %>
+                  <td style="padding:0 6px;">
+                    <a href="<%= clientUrl %>/orderhistory" target="_blank" style="display:inline-block;background:#1A1A1A;color:#ffffff;font-size:13px;font-weight:600;text-decoration:none;padding:12px 22px;border-radius:8px;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+                      View Order Status &rarr;
+                    </a>
+                  </td>
+                  <% } %>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Support Notice -->
+          <tr>
+            <td style="padding:0 24px 20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F3F4F6;border-radius:10px;padding:12px 16px;">
+                <tr>
+                  <td style="font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;color:#4B5563;text-align:center;">
+                    Once you receive your package, please log in to your account and click <strong>&quot;Confirm Received&quot;</strong>.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer partial -->
+          <tr>
+            <td style="border-top:1px solid #F0F0F0;">
+              <%- include("partials/footer") %>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Copyright -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="max-width:620px;width:100%;margin:0 auto;">
+          <tr>
+            <td align="center" style="padding:20px 16px 0;font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:11px;line-height:1.6;color:#9CA3AF;">
+              <p style="margin:0;">&copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

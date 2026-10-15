@@ -3,6 +3,12 @@ export interface SendMailOptions {
     subject: string;
     template: string;
     context: Record<string, unknown>;
+    attachments?: Array<{
+        filename: string;
+        path?: string;
+        content?: Buffer | string;
+        contentType?: string;
+    }>;
 }
 
 export interface IMailService {

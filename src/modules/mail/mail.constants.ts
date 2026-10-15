@@ -9,7 +9,7 @@ export const EMAIL_CONFIG = {
   secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
   user: process.env.SMTP_USER || 'user@example.com',
   pass: process.env.SMTP_PASS || 'password',
-  from: process.env.EMAIL_FROM || 'no-reply@businessmyway.com',
+  from: process.env.MAIL_FROM || process.env.EMAIL_FROM || 'no-reply@businessmyway.com',
 };
 
 /**

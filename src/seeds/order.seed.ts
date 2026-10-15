@@ -8,113 +8,180 @@ import { UserModel } from '@/modules/user/user.model';
 import { ProductModel } from '@/modules/products/product.model';
 import { ROLES } from '@/core/constants/roles';
 
-function generateSamplePdfBuffer(orderNumber: string, customerName: string, total: number, dateStr: string): Buffer {
+function escapePdfText(str: string): string {
+    return (str || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/\(/g, '\\(')
+        .replace(/\)/g, '\\)')
+        .replace(/£/g, '\\243')
+        .replace(/[^\x20-\x7E\xA0-\xFF]/g, ' ');
+}
+
+function generateSamplePdfBuffer(
+    orderNumber: string,
+    customerName: string,
+    total: number,
+    dateStr: string,
+    status = 'DELIVERED',
+    deliveryType = 'Standard Delivery'
+): Buffer {
     const pageWidth = 595.28;
     const pageHeight = 841.89;
-    const margin = 50;
+    const margin = 35;
     const contentWidth = pageWidth - margin * 2;
 
-    const streamLines: string[] = [
-        '0.1 0.1 0.1 rg',
-        `0 ${pageHeight - 90} ${pageWidth} 90 re f`,
-        '0.75 0.55 0.18 rg',
-        `0 ${pageHeight - 93} ${pageWidth} 3 re f`,
-        'BT',
-        '/F2 20 Tf',
-        '1 1 1 rg',
-        `${margin} ${pageHeight - 52} Td`,
-        '(BRITISH SMOKES) Tj',
-        'ET',
-        'BT',
-        '/F1 10 Tf',
-        '0.8 0.8 0.8 rg',
-        `${margin} ${pageHeight - 70} Td`,
-        '(Official Order Invoice & Receipt) Tj',
-        'ET',
-        'BT',
-        '/F2 22 Tf',
-        '0.75 0.55 0.18 rg',
-        `${pageWidth - margin - 110} ${pageHeight - 55} Td`,
-        '(INVOICE) Tj',
-        'ET',
-        'BT',
-        '/F2 10 Tf',
-        '0.15 0.15 0.15 rg',
-        `${margin} ${pageHeight - 130} Td`,
-        '(Invoice Number:) Tj',
-        '/F1 10 Tf',
-        ` ( #${orderNumber}) Tj`,
-        'ET',
-        'BT',
-        '/F2 10 Tf',
-        '0.15 0.15 0.15 rg',
-        `${pageWidth - margin - 160} ${pageHeight - 130} Td`,
-        '(Date:) Tj',
-        '/F1 10 Tf',
-        ` (${dateStr}) Tj`,
-        'ET',
-        '0.96 0.95 0.93 rg',
-        `${margin} ${pageHeight - 215} ${contentWidth} 65 re f`,
-        '0.85 0.82 0.78 RG 1 w',
-        `${margin} ${pageHeight - 215} ${contentWidth} 65 re S`,
-        'BT',
-        '/F2 11 Tf',
-        '0.75 0.55 0.18 rg',
-        `${margin + 12} ${pageHeight - 165} Td`,
-        '(BILLED TO:) Tj',
-        'ET',
-        'BT',
-        '/F2 10 Tf',
-        '0.1 0.1 0.1 rg',
-        `${margin + 12} ${pageHeight - 180} Td`,
-        `(${customerName}) Tj`,
-        'ET',
-        'BT',
-        '/F1 9 Tf',
-        '0.35 0.35 0.35 rg',
-        `${margin + 12} ${pageHeight - 195} Td`,
-        '(Payment Status: Completed / Verified) Tj',
-        'ET',
-        '0.1 0.1 0.1 rg',
-        `${margin} ${pageHeight - 250} ${contentWidth} 22 re f`,
-        'BT',
-        '/F2 9 Tf',
-        '1 1 1 rg',
-        `${margin + 10} ${pageHeight - 244} Td`,
-        '(ITEM DESCRIPTION) Tj',
-        `${contentWidth - 180} 0 Td`,
-        '(QTY) Tj',
-        '70 0 Td',
-        '(TOTAL) Tj',
-        'ET',
-        'BT',
-        '/F1 9 Tf',
-        '0.15 0.15 0.15 rg',
-        `${margin + 10} ${pageHeight - 280} Td`,
-        '(Premium Cigarette & Cigar Selection) Tj',
-        `${contentWidth - 180} 0 Td`,
-        '(1) Tj',
-        '/F2 9 Tf',
-        '70 0 Td',
-        `(${total.toFixed(2)}) Tj`,
-        'ET',
-        'BT',
-        '/F2 12 Tf',
-        '0.75 0.55 0.18 rg',
-        `${pageWidth - margin - 180} ${pageHeight - 340} Td`,
-        '(Total Paid:) Tj',
-        '80 0 Td',
-        `(GBP ${total.toFixed(2)}) Tj`,
-        'ET',
-        '0.85 0.82 0.78 RG 0.5 w',
-        `${margin} 80 m ${pageWidth - margin} 80 l S`,
-        'BT',
-        '/F2 9 Tf',
-        '0.75 0.55 0.18 rg',
-        `${margin} 62 Td`,
-        '(Thank you for your business with British Smokes!) Tj',
-        'ET',
-    ];
+    const streamLines: string[] = [];
+
+    const drawRect = (
+        x: number,
+        y: number,
+        w: number,
+        h: number,
+        fill?: [number, number, number],
+        stroke?: [number, number, number],
+        lineWidth = 1
+    ) => {
+        if (stroke) {
+            streamLines.push(`${stroke[0].toFixed(3)} ${stroke[1].toFixed(3)} ${stroke[2].toFixed(3)} RG ${lineWidth} w`);
+        }
+        if (fill && stroke) {
+            streamLines.push(`${fill[0].toFixed(3)} ${fill[1].toFixed(3)} ${fill[2].toFixed(3)} rg`);
+            streamLines.push(`${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re B`);
+        } else if (fill) {
+            streamLines.push(`${fill[0].toFixed(3)} ${fill[1].toFixed(3)} ${fill[2].toFixed(3)} rg`);
+            streamLines.push(`${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f`);
+        } else if (stroke) {
+            streamLines.push(`${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S`);
+        }
+    };
+
+    const drawHLine = (x1: number, x2: number, y: number, stroke: [number, number, number], lineWidth = 0.75) => {
+        streamLines.push(`${stroke[0].toFixed(3)} ${stroke[1].toFixed(3)} ${stroke[2].toFixed(3)} RG ${lineWidth} w`);
+        streamLines.push(`${x1.toFixed(2)} ${y.toFixed(2)} m ${x2.toFixed(2)} ${y.toFixed(2)} l S`);
+    };
+
+    const drawText = (
+        text: string,
+        x: number,
+        y: number,
+        font: '/F1' | '/F2',
+        size: number,
+        color: [number, number, number]
+    ) => {
+        streamLines.push('BT');
+        streamLines.push(`${font} ${size} Tf`);
+        streamLines.push(`${color[0].toFixed(3)} ${color[1].toFixed(3)} ${color[2].toFixed(3)} rg`);
+        streamLines.push(`${x.toFixed(2)} ${y.toFixed(2)} Td`);
+        streamLines.push(`(${escapePdfText(text)}) Tj`);
+        streamLines.push('ET');
+    };
+
+    // Outer container
+    const outerX = margin;
+    const outerY = 40;
+    const outerW = contentWidth;
+    const outerH = pageHeight - 80;
+    drawRect(outerX, outerY, outerW, outerH, [1, 1, 1], [0.91, 0.91, 0.91], 1);
+
+    const innerLeft = outerX + 22;
+    const innerRight = outerX + outerW - 22;
+    const innerWidth = innerRight - innerLeft;
+
+    // Header
+    const topY = outerY + outerH - 35;
+    drawText('BRITISH SMOKES', innerLeft, topY, '/F2', 20, [0.102, 0.102, 0.102]);
+    drawText('Official Order Invoice & Receipt', innerLeft, topY - 16, '/F1', 9, [0.42, 0.447, 0.502]);
+    drawText('United Kingdom  ·  Support: support@britishsmokes.com', innerLeft, topY - 29, '/F1', 8, [0.61, 0.64, 0.69]);
+
+    drawText('INVOICE', innerRight - 85, topY, '/F2', 20, [0.749, 0.553, 0.184]);
+
+    // Status pill
+    const pillW = 68;
+    const pillH = 15;
+    const pillX = innerRight - pillW;
+    const pillY = topY - 28;
+    drawText('Status:', pillX - 38, topY - 24, '/F1', 8.5, [0.42, 0.447, 0.502]);
+    drawRect(pillX, pillY, pillW, pillH, [0.871, 0.969, 0.925], [0.737, 0.941, 0.855], 0.75);
+    drawText('Delivered', pillX + 14, pillY + 4, '/F2', 7.5, [0.012, 0.329, 0.247]);
+
+    drawHLine(innerLeft, innerRight, topY - 42, [0.898, 0.906, 0.922], 0.75);
+
+    // Meta bar
+    const metaY = topY - 58;
+    drawText(`Invoice Number: #${orderNumber}`, innerLeft, metaY, '/F2', 9, [0.102, 0.102, 0.102]);
+    drawText(`Order Date: ${dateStr}`, innerRight - 120, metaY, '/F2', 9, [0.102, 0.102, 0.102]);
+
+    // Side-by-side cards
+    const cardGap = 14;
+    const cardWidth = (innerWidth - cardGap) / 2;
+    const cardHeight = 116;
+    const cardY = metaY - 14 - cardHeight;
+    const leftCardX = innerLeft;
+    const rightCardX = innerLeft + cardWidth + cardGap;
+
+    drawRect(leftCardX, cardY, cardWidth, cardHeight, [0.98, 0.98, 0.973], [0.898, 0.906, 0.922], 0.75);
+    drawText('BILLED & DELIVERED TO', leftCardX + 12, cardY + cardHeight - 16, '/F2', 8, [0.749, 0.553, 0.184]);
+    drawText(customerName, leftCardX + 12, cardY + cardHeight - 32, '/F2', 9.5, [0.067, 0.094, 0.153]);
+    drawText('Phone: +44 7911 123456', leftCardX + 12, cardY + cardHeight - 46, '/F1', 8, [0.35, 0.35, 0.35]);
+    drawText('Email: customer@example.com', leftCardX + 12, cardY + cardHeight - 58, '/F1', 8, [0.35, 0.35, 0.35]);
+    drawHLine(leftCardX + 12, leftCardX + cardWidth - 12, cardY + cardHeight - 68, [0.88, 0.88, 0.88], 0.5);
+    drawText('SHIPPING LOCATION', leftCardX + 12, cardY + cardHeight - 78, '/F2', 6.5, [0.61, 0.64, 0.69]);
+    drawText('Flat 4B, 22 Baker Street, London NW1 6XE, UK', leftCardX + 12, cardY + cardHeight - 91, '/F1', 7.5, [0.102, 0.102, 0.102]);
+
+    drawRect(rightCardX, cardY, cardWidth, cardHeight, [0.98, 0.98, 0.973], [0.898, 0.906, 0.922], 0.75);
+    drawText('SHIPPING & DISPATCH', rightCardX + 12, cardY + cardHeight - 16, '/F2', 8, [0.749, 0.553, 0.184]);
+    drawText(deliveryType, rightCardX + cardWidth - 95, cardY + cardHeight - 16, '/F2', 8, [0.29, 0.33, 0.39]);
+    drawText('Carrier / Company:', rightCardX + 12, cardY + cardHeight - 36, '/F1', 8, [0.45, 0.45, 0.45]);
+    drawText('Royal Mail', rightCardX + cardWidth - 65, cardY + cardHeight - 36, '/F2', 8, [0.102, 0.102, 0.102]);
+    drawHLine(rightCardX + 12, rightCardX + cardWidth - 12, cardY + cardHeight - 43, [0.88, 0.88, 0.88], 0.5);
+    drawText('Tracking Number:', rightCardX + 12, cardY + cardHeight - 57, '/F1', 8, [0.45, 0.45, 0.45]);
+    drawText(`#RM${orderNumber.replace(/[^0-9]/g, '') || '1001'}GB`, rightCardX + cardWidth - 85, cardY + cardHeight - 57, '/F2', 8, [0.102, 0.102, 0.102]);
+    drawHLine(rightCardX + 12, rightCardX + cardWidth - 12, cardY + cardHeight - 64, [0.88, 0.88, 0.88], 0.5);
+    drawText('Shipped Date:', rightCardX + 12, cardY + cardHeight - 78, '/F1', 8, [0.45, 0.45, 0.45]);
+    drawText(dateStr, rightCardX + cardWidth - 80, cardY + cardHeight - 78, '/F1', 8, [0.20, 0.20, 0.20]);
+    drawHLine(rightCardX + 12, rightCardX + cardWidth - 12, cardY + cardHeight - 85, [0.88, 0.88, 0.88], 0.5);
+    drawText('Est. Delivery:', rightCardX + 12, cardY + cardHeight - 99, '/F1', 8, [0.45, 0.45, 0.45]);
+    drawText('Delivered', rightCardX + cardWidth - 65, cardY + cardHeight - 99, '/F2', 8, [0.012, 0.329, 0.247]);
+
+    // Items Table
+    const tableTopY = cardY - 18;
+    drawRect(innerLeft, tableTopY - 22, innerWidth, 22, [0.102, 0.102, 0.102]);
+    drawText('ITEM DESCRIPTION', innerLeft + 12, tableTopY - 15, '/F2', 7.5, [1, 1, 1]);
+    drawText('QTY', innerLeft + 270, tableTopY - 15, '/F2', 7.5, [1, 1, 1]);
+    drawText('UNIT PRICE', innerLeft + 340, tableTopY - 15, '/F2', 7.5, [1, 1, 1]);
+    drawText('TOTAL', innerRight - 45, tableTopY - 15, '/F2', 7.5, [1, 1, 1]);
+
+    const rowY = tableTopY - 46;
+    drawRect(innerLeft, rowY, innerWidth, 24, [1, 1, 1]);
+    drawHLine(innerLeft, innerRight, rowY, [0.898, 0.906, 0.922], 0.5);
+    drawText('Premium British Tobacco Blend Selection', innerLeft + 12, rowY + 7, '/F2', 8, [0.067, 0.094, 0.153]);
+    drawText('1', innerLeft + 275, rowY + 7, '/F1', 8, [0.29, 0.33, 0.39]);
+    drawText(`£${(total - 4.99 > 0 ? total - 4.99 : total).toFixed(2)}`, innerLeft + 345, rowY + 7, '/F1', 8, [0.29, 0.33, 0.39]);
+    drawText(`£${(total - 4.99 > 0 ? total - 4.99 : total).toFixed(2)}`, innerRight - 55, rowY + 7, '/F2', 8, [0.067, 0.094, 0.153]);
+
+    // Totals card
+    const totalsCardW = 215;
+    const totalsCardH = 82;
+    const totalsX = innerRight - totalsCardW;
+    const totalsY = rowY - 14 - totalsCardH;
+    drawRect(totalsX, totalsY, totalsCardW, totalsCardH, [0.98, 0.98, 0.973], [0.898, 0.906, 0.922], 0.75);
+
+    const sub = (total - 4.99 > 0 ? total - 4.99 : total).toFixed(2);
+    drawText('Subtotal:', totalsX + 12, totalsY + totalsCardH - 16, '/F1', 8, [0.38, 0.42, 0.47]);
+    drawText(`£${sub}`, totalsX + totalsCardW - 55, totalsY + totalsCardH - 16, '/F2', 8, [0.067, 0.094, 0.153]);
+
+    drawText(`Delivery Fee (${deliveryType}):`, totalsX + 12, totalsY + totalsCardH - 30, '/F1', 7.5, [0.38, 0.42, 0.47]);
+    drawText(total - 4.99 > 0 ? '£4.99' : 'Free', totalsX + totalsCardW - 55, totalsY + totalsCardH - 30, '/F2', 8, [0.067, 0.094, 0.153]);
+
+    drawHLine(totalsX + 12, totalsX + totalsCardW - 12, totalsY + totalsCardH - 38, [0.85, 0.85, 0.85], 0.5);
+    drawText('Total Amount:', totalsX + 12, totalsY + totalsCardH - 53, '/F2', 9, [0.067, 0.094, 0.153]);
+    drawText(`£${total.toFixed(2)}`, totalsX + totalsCardW - 65, totalsY + totalsCardH - 54, '/F2', 11, [0.749, 0.553, 0.184]);
+    drawText(`Paid on ${dateStr}`, totalsX + totalsCardW - 90, totalsY + totalsCardH - 69, '/F2', 7.5, [0.012, 0.329, 0.247]);
+
+    // Footer
+    const footerY = outerY + 25;
+    drawHLine(innerLeft, innerRight, footerY + 14, [0.898, 0.906, 0.922], 0.75);
+    drawText('Thank you for your order with British Smokes!', innerLeft + 130, footerY, '/F2', 8.5, [0.42, 0.447, 0.502]);
 
     const streamContent = streamLines.join('\n');
     const streamLength = Buffer.byteLength(streamContent, 'utf8');
@@ -124,8 +191,8 @@ function generateSamplePdfBuffer(orderNumber: string, customerName: string, tota
         '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
         '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
         `3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>\nendobj\n`,
-        '4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n',
-        '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj\n',
+        '4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n',
+        '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>\nendobj\n',
         `6 0 obj\n<< /Length ${streamLength} >>\nstream\n${streamContent}\nendstream\nendobj\n`,
     ];
 
@@ -304,7 +371,7 @@ export const seedOrders = async (): Promise<void> => {
                 deliveryFee: 0,
                 total: 110.0,
                 status: ORDER_STATUS.DELIVERED,
-                deliveryType: DELIVERY_TYPES.FREE_DELIVERY,
+                deliveryType: DELIVERY_TYPES.STANDARD,
                 customer: {
                     name: targetUser.name || 'John Smith',
                     phone: targetUser.phone || '+44 7911 123456',
